@@ -1,0 +1,5 @@
+# TPTP problems (.p), axioms (.ax) and TSTP proofs (.s) are test data, not source code.
+# Keep them out of GitHub's language statistics so the repository shows as Python.
+*.p  linguist-detectable=false
+*.ax linguist-detectable=false
+*.s  linguist-detectable=false
