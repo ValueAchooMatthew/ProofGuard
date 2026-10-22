@@ -70,10 +70,13 @@ ProofGuard highlights:
 **ProofGuard: A Conservative Checker for TSTP Refutation Proofs**, with Alicia
 Marinache (McMaster University). Drafted in Overleaf. Status as of October 2026:
 
-- ✅ Written: literature survey, system model, verification strategy
-- ✍️ In progress: introduction
-- 🗒️ Detailed notes, being written up next: decision policy, implementation,
-  evaluation (the analysis above as a reproducible result), future work
+- ✅ Full first draft complete: introduction, literature survey, system
+  model, verification strategy, decision policy, implementation, evaluation,
+  and future work
+- 📚 62 references, most from 2025 and 2026
+- 🔁 Evaluation presents the post-competition analysis above as a
+  reproducible result
+- ✍️ Next: review and revision with Alicia Marinache, then submission
 - 🎯 Venues under consideration: arXiv preprint, Journal of Open Source
   Software, and the next editions of the CADE system description track, AITP,
   and the NeurIPS MATH-AI workshop
