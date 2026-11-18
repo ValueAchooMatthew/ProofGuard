@@ -54,6 +54,29 @@ fof(nc, negated_conjecture, ~ ?[X]: ?[Y]: ?[Z]: r(X,Y,Z), inference(negated_conj
 fof(sk, plain, ![X]: ?[Y]: r(X,Y,sK0(X)), inference(skolemize, [status(esa), new_symbols(skolem,[sK0]), skolemize(Z,sK0(X))], [a1])).
 fof(bot, plain, $false, inference(consequence, [status(thm)], [sk, nc])).
 """
+P6 = """
+fof(a1, axiom, ![X]: ![Z]: ?[Y]: r(X,Z,Y)).
+fof(c, conjecture, ?[X]: ?[Z]: ?[Y]: r(X,Z,Y)).
+"""
+SK2 = """% Proof : Problems/P6.p
+fof(a1, axiom, ![X]: ![Z]: ?[Y]: r(X,Z,Y), file('Problems/P6.p', a1)).
+fof(c, conjecture, ?[X]: ?[Z]: ?[Y]: r(X,Z,Y), file('Problems/P6.p', c)).
+fof(nc, negated_conjecture, ~ ?[X]: ?[Z]: ?[Y]: r(X,Z,Y), inference(negated_conjecture, [status(cth)], [c])).
+fof(sk, plain, ![X]: ![Z]: r(X,Z,sK0(X,Z)), inference(skolemize, [status(esa), new_symbols(skolem,[sK0]), skolemize(Y,sK0(X,Z))], [a1])).
+fof(bot, plain, $false, inference(consequence, [status(thm)], [sk, nc])).
+"""
+SK2_STEP = "fof(sk, plain, ![X]: ![Z]: r(X,Z,sK0(X,Z)), inference(skolemize, [status(esa), new_symbols(skolem,[sK0]), skolemize(Y,sK0(X,Z))], [a1]))."
+P7 = """
+fof(a1, axiom, ~ ![X]: p(X)).
+fof(c, conjecture, ?[X]: ~p(X)).
+"""
+NEG = """% Proof : Problems/P7.p
+fof(a1, axiom, ~ ![X]: p(X), file('Problems/P7.p', a1)).
+fof(c, conjecture, ?[X]: ~p(X), file('Problems/P7.p', c)).
+fof(nc, negated_conjecture, ~ ?[X]: ~p(X), inference(negated_conjecture, [status(cth)], [c])).
+fof(sk, plain, ~p(sK0), inference(skolemize, [status(esa), new_symbols(skolem,[sK0]), skolemize(X,sK0)], [a1])).
+fof(bot, plain, $false, inference(consequence, [status(thm)], [sk, nc])).
+"""
 OK = """% Proof : Problems/P1.p
 fof(a1, axiom, p(a), file('Problems/P1.p', a1)).
 fof(a2, axiom, ![X]: (p(X) => ?[Y]: r(X,Y)), file('Problems/P1.p', a2)).
@@ -93,6 +116,46 @@ CASES = [
     ("Skolemization under another existential", NESTED, VALID),
     ("Skolemization under another existential, wrong result",
      sub(NESTED, "![X]: ?[Y]: r(X,Y,sK0(X)), inference", "![X]: ?[Y]: r(X,sK0(X),Y), inference"), BROKEN),
+    # orders, Skolem terms and freshness that the rules allow
+    ("steps listed in reverse order",
+     OK.split("\n", 1)[0] + "\n" + "\n".join(reversed(OK.strip().split("\n")[1:])) + "\n", VALID),
+    ("Skolem term lists the universals in another order",
+     sub(SK2, "r(X,Z,sK0(X,Z)), inference(skolemize, [status(esa), new_symbols(skolem,[sK0]), skolemize(Y,sK0(X,Z))]",
+         "r(X,Z,sK0(Z,X)), inference(skolemize, [status(esa), new_symbols(skolem,[sK0]), skolemize(Y,sK0(Z,X))]"), VALID),
+    ("Skolemization of ~![X]: an existential under a negation", NEG, VALID),
+    ("Skolem symbol occurs in a consequence of another Skolemization", """% Proof : Problems/P8.p
+fof(c, conjecture, (?[X]: ![Y]: r(X,Y)) => (![Y]: ?[X]: r(X,Y)), file('Problems/P8.p', c)).
+fof(neg, negated_conjecture, (?[X]: ![Y]: r(X,Y)) & (?[Y]: ![X]: ~r(X,Y)), inference(negated_conjecture, [status(cth)], [c])).
+fof(s1, plain, ?[X]: ![Y]: r(X,Y), inference(alpha, [status(thm)], [neg])).
+fof(s2, plain, ?[Y]: ![X]: ~r(X,Y), inference(alpha, [status(thm)], [neg])).
+fof(sk2, plain, ![X]: ~r(X,sK1), inference(skolemize, [status(esa), new_symbols(skolem,[sK1]), skolemize(Y,sK1)], [s2])).
+fof(s4, plain, ~r(sK0,sK1), inference(instantiate, [status(thm)], [sk2])).
+fof(sk1, plain, ![Y]: r(sK0,Y), inference(skolemize, [status(esa), new_symbols(skolem,[sK0]), skolemize(X,sK0)], [s1])).
+fof(s3, plain, r(sK0,sK1), inference(instantiate, [status(thm)], [sk1])).
+fof(bot, plain, $false, inference(resolution, [status(thm)], [s3, s4])).
+""", VALID),
+    ("Skolem symbol occurs in an unrelated tautology",
+     sub(SK2, SK2_STEP, "fof(taut, plain, (q(sK0(a,a)) | ~q(sK0(a,a))), inference(tautology, [status(thm)], [])).\n" + SK2_STEP), VALID),
+    # and the ones they do not
+    ("a step depends on itself", sub(OK, "[status(thm)], [a1, a2])", "[status(thm)], [a1, a2, s1])"), BROKEN),
+    ("Skolem term leaves out a universal it depends on",
+     sub(SK2, "r(X,Z,sK0(X,Z)), inference(skolemize, [status(esa), new_symbols(skolem,[sK0]), skolemize(Y,sK0(X,Z))]",
+         "r(X,Z,sK0(X)), inference(skolemize, [status(esa), new_symbols(skolem,[sK0]), skolemize(Y,sK0(X))]"), BROKEN),
+    ("Skolem term built from another symbol",
+     sub(SK2, "r(X,Z,sK0(X,Z)), inference(skolemize, [status(esa), new_symbols(skolem,[sK0])",
+         "r(X,Z,sK0(X,Z)), inference(skolemize, [status(esa), new_symbols(skolem,[sK1])"), BROKEN),
+    ("Skolemization of ~?[X]: a universal under a negation",
+     sub(NEG, "fof(bot, plain, $false, inference(consequence, [status(thm)], [sk, nc])).",
+         "fof(sk2, plain, ~ ~p(sK1), inference(skolemize, [status(esa), new_symbols(skolem,[sK1]), skolemize(X,sK1)], [nc])).\n"
+         "fof(bot, plain, $false, inference(consequence, [status(thm)], [sk, nc]))."), BROKEN),
+    ("Skolem symbol occurs in the parent",
+     sub(SK2, SK2_STEP,
+         "fof(s0, plain, ![X]: ![Z]: ?[Y]: (r(X,Z,Y) & (q(sK0(X,Z)) | ~q(sK0(X,Z)))), inference(weaken, [status(thm)], [a1])).\n"
+         "fof(sk, plain, ![X]: ![Z]: (r(X,Z,sK0(X,Z)) & (q(sK0(X,Z)) | ~q(sK0(X,Z)))), inference(skolemize, [status(esa), new_symbols(skolem,[sK0]), skolemize(Y,sK0(X,Z))], [s0]))."), BROKEN),
+    ("Skolem symbol introduced twice, the second listed first",
+     sub(SK2, SK2_STEP,
+         "fof(sk2, plain, ![X]: ![Z]: r(X,Z,sK0(X,Z)), inference(skolemize, [status(esa), new_symbols(skolem,[sK0]), skolemize(Y,sK0(X,Z))], [a1])).\n"
+         "fof(dummy, plain, ![X]: ![Z]: r(X,Z,sK0(X,Z)), inference(copy, [status(thm)], [sk2])).\n" + SK2_STEP), BROKEN),
     ("derived step with role conjecture is negated", """% Proof : Problems/P2.p
 fof(a1, axiom, p(a), file('Problems/P2.p', a1)).
 fof(c, conjecture, q(a), file('Problems/P2.p', c)).
@@ -206,6 +269,7 @@ MUTATIONS = [
     ("inference: also claims esa", other, lambda u, s, cx: record(u, info=list(s.info) + ["status(esa)"])),
     ("inference: role conjecture", other, lambda u, s, cx: {**u, "role": "conjecture"}),
     ("inference: role axiom", other, lambda u, s, cx: {**u, "role": "axiom"}),
+    ("inference: cites itself", other, lambda u, s, cx: record(u, parents=list(s.parents) + [u["name"]])),
     ("proof: a unit that is not fof or cnf", None, None),
 ]
 
@@ -229,6 +293,12 @@ def mutants(proof):
                     break
 
 
+def reordered(proof):
+    """The proof with its steps listed in reverse order, which the rules allow."""
+    text = open(os.path.join(CORPUS, proof + ".s")).read()
+    header = "".join(l + "\n" for l in text.split("\n") if l.startswith("%"))
+    return emit(header, list(reversed(units_of(text))))
+
 def verdict(cmd, text, problems):
     """Run the checker on `text` the way the competition did: proof only."""
     with tempfile.TemporaryDirectory() as d:
@@ -249,7 +319,9 @@ def main(argv):
     failures = 0
 
     with tempfile.TemporaryDirectory() as d:
-        for name, text in (("P1.p", P1), ("P2.p", P2), ("P3.p", P3), ("P4.p", P4), ("P5.p", P5)):
+        for name, text in (("P1.p", P1), ("P2.p", P2), ("P3.p", P3), ("P4.p", P4), ("P5.p", P5),
+                           ("P6.p", P6), ("P7.p", P7),
+                           ("P8.p", "fof(c, conjecture, (?[X]: ![Y]: r(X,Y)) => (![Y]: ?[X]: r(X,Y))).\n")):
             with open(os.path.join(d, name), "w") as f:
                 f.write(text)
         print("hand-written cases:")
@@ -260,15 +332,16 @@ def main(argv):
             failures += not ok
             print(f"  [{'PASS' if ok else 'FAIL'}] {label:56s} -> {v}")
         if "--checker" not in argv:
-            # the tolerant profile accepts proofs that break the specification,
-            # but it must still never accept an unsound one
-            print("\ntolerant profile, soundness only:")
-            sound = [c for c in CASES if c[2] != BROKEN]
+            # the tolerant profile accepts proofs that break the specification
+            # (and, being the 1.0 rules, rejects some valid ones), but it must
+            # never accept a proof of a non-theorem
+            print("\ntolerant profile, unsound proofs only:")
+            sound = [c for c in CASES if c[2] == UNSOUND]
             with ThreadPoolExecutor(4) as pool:
                 got = list(pool.map(lambda c: verdict(
                     cmd + ["--profile", "tolerant"], c[1], d), sound))
             for (label, _, kind), v in zip(sound, got):
-                ok = (v == "VerifiedGood") == (kind == VALID)
+                ok = v != "VerifiedGood"
                 failures += not ok
                 print(f"  [{'PASS' if ok else 'FAIL'}] {label:56s} -> {v}")
 
@@ -296,6 +369,13 @@ def main(argv):
         failures += len(accepted)
         print(f"  [{'PASS' if not accepted else 'FAIL'}] {label:46s} {len(rows):3d} mutants, "
               f"{len(accepted):3d} accepted" + (f"  e.g. {accepted[0]}" if accepted else ""))
+    with ThreadPoolExecutor(4) as pool:
+        again = list(pool.map(lambda p: verdict(cmd, reordered(p), problems), bases))
+    lost = [p for p, v in zip(bases, again) if v != "VerifiedGood"]
+    failures += len(lost)
+    print(f"\nthe same {len(bases)} proofs with their steps in reverse order (still valid):")
+    print(f"  [{'PASS' if not lost else 'FAIL'}] {len(bases) - len(lost)} still accepted"
+          + (f", lost: {' '.join(lost)}" if lost else ""))
     total = sum(v == "VerifiedGood" for v in got)
     print(f"\n{len(jobs)} mutants, {total} accepted; "
           f"{sum(c[2] != VALID for c in CASES)} hand-written invalid cases")

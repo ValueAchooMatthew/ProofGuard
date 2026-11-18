@@ -671,29 +671,39 @@ def check_skolemize(step, parents, seen_symbols, deadline):
     return skolemization(parents[0].formula, step.formula, new_syms[0],
                          sk_var, term_text, seen_symbols)
 
-def skolemization(parent, formula, new_sym, sk_var, term_text, seen_symbols):
+def skolemization(parent, formula, new_sym, sk_var, term_text, seen_symbols,
+                  strict=False):
     """Is `formula` the result of replacing the existential `sk_var` of
     `parent` by the term `term_text`, where that term is the fresh symbol
-    `new_sym` applied to the universals in scope?"""
+    `new_sym` applied to the universals in scope?
+
+    With `strict`, the prefix may also contain negations (so ~![X]: p(X)
+    Skolemizes X), and the Skolem term may list the universals in any order.
+    A term that leaves out a universal the eliminated variable depends on is
+    a flaw. Any other departure from the expected term is left undecided,
+    since the competition's rules and proceedings disagree on it."""
     if new_sym in seen_symbols:
         return BAD, f"Skolem symbol {new_sym} is not fresh (already in use)"
 
     # Walk the quantifier prefix down to the existential being eliminated.
     # Other existentials may sit above it (as in ![X]: ?[Y]: ?[Z] when Z is
     # eliminated first); the Skolem term depends only on the universals.
-    prefix, node = [], parent
+    # Under a negation a quantifier changes kind: ~![X] is an existential.
+    prefix, node, negated = [], parent, False   # prefix: (node, is_existential)
     while True:
-        if isinstance(node, Forall):
-            prefix.append(node); node = node.body
-        elif isinstance(node, Exists):
-            if node.var == sk_var:
+        if strict and isinstance(node, Not):
+            prefix.append((node, None)); negated = not negated; node = node.sub
+        elif isinstance(node, (Forall, Exists)):
+            existential = isinstance(node, Exists) != negated
+            if existential and node.var == sk_var:
                 break
-            prefix.append(node); node = node.body
+            prefix.append((node, existential)); node = node.body
         else:
             return BAD, f"no existential {sk_var} at the expected position"
-    scope = [q.var for q in prefix if isinstance(q, Forall)]
-    nested = any(isinstance(q, Exists) for q in prefix)
-    if len({q.var for q in prefix} | {sk_var}) != len(prefix) + 1:
+    scope = [q.var for q, ex in prefix if ex is False]
+    nested = any(ex for _, ex in prefix)
+    bound = [q.var for q, ex in prefix if ex is not None]
+    if len(set(bound) | {sk_var}) != len(bound) + 1:
         return UNSURE, "quantified variable names repeat in the prefix; cannot check"
 
     try:
@@ -701,7 +711,11 @@ def skolemization(parent, formula, new_sym, sk_var, term_text, seen_symbols):
     except SyntaxError:
         return UNSURE, "cannot parse skolem binding term"
     expected = Func(new_sym, tuple(Var(v) for v in scope))
-    if bind_term != expected:
+    if bind_term != expected and strict:
+        v, why = _skolem_term(bind_term, expected, scope, node.body)
+        if v is not None:
+            return v, why
+    elif bind_term != expected:
         if nested:
             # only the exact term is checked under existentials; anything else
             # is left undecided rather than rejected
@@ -711,13 +725,32 @@ def skolemization(parent, formula, new_sym, sk_var, term_text, seen_symbols):
                      "(fresh symbol applied to exactly the universals in scope)")
 
     rebuilt = subst(node.body, {sk_var: bind_term})
-    for q in reversed(prefix):
-        rebuilt = type(q)(q.var, rebuilt)
+    for q, ex in reversed(prefix):
+        rebuilt = Not(rebuilt) if ex is None else type(q)(q.var, rebuilt)
     if equal_mod_alpha(rebuilt, formula):
-        return GOOD, f"correct Skolemization introducing {pp_term(expected)}"
+        return GOOD, f"correct Skolemization introducing {pp_term(bind_term)}"
     return BAD, (f"Skolemization result is wrong; expected {pp(rebuilt)} "
                  f"but the step states {pp(formula)}")
 
+
+def _skolem_term(term, expected, scope, body):
+    """Judge a Skolem term that is not exactly `expected`. Returns (None, None)
+    if it is the same symbol applied to the same universals in another order."""
+    sym = expected.name
+    if not (isinstance(term, Func) and term.name == sym):
+        return BAD, (f"Skolem term {pp_term(term)} is not built from the declared "
+                     f"Skolem symbol {sym}")
+    names = [a.name for a in term.args if isinstance(a, Var)]
+    if len(names) == len(term.args) and len(set(names)) == len(names) \
+            and set(names) == set(scope):
+        return None, None
+    missing = [v for v in scope if v in free_vars(body) and v not in term_vars(term)]
+    if missing:
+        return BAD, (f"Skolem term {pp_term(term)} does not depend on "
+                     f"{', '.join(missing)}, which the eliminated variable depends on")
+    return UNSURE, (f"Skolem term {pp_term(term)} is not {pp_term(expected)} up to "
+                    "argument order; the competition rules require exactly the "
+                    "universals in scope, its proceedings at least those in the formula")
 
 def _sk_occurrences(f, sk):
     occs = []
@@ -1085,7 +1118,7 @@ OBLIGATIONS = {
     'L5': "the step and the named formula are both axioms or both the conjecture",
     'L6': "the step's formula is alpha-equivalent to the named formula",
     'D1': "a derived step does not have role axiom or conjecture",
-    'D2': "every parent is an earlier step of the proof",
+    'D2': "every parent is a step of the proof, and no step depends on itself",
     'N1': "a negated_conjecture step claims status cth",
     'N2': "its only parent is the imported conjecture",
     'N3': "its formula is the negation of the conjecture",
@@ -1094,7 +1127,7 @@ OBLIGATIONS = {
     'S2': "it has exactly one parent, which is not the conjecture",
     'S3': "it declares its Skolem symbol with new_symbols(skolem,[sK])",
     'S4': "it names the eliminated variable and its term with skolemize(Var,Term)",
-    'S5': "its formula is the Skolemization of the parent that the annotations describe",
+    'S5': "its Skolem symbol is fresh, and its formula is the Skolemization of the parent that the annotations describe",
     'S6': "it claims no other status",
     'I1': "the conjecture is not among the parents",
     'I2': "it claims status thm and nothing else, and its parents entail it",
@@ -1227,14 +1260,108 @@ class _Strict:
     def __init__(self, problem_steps, deadline, problem_file):
         self.deadline, self.problem_file = deadline, problem_file
         self.problem, self.ambiguous = {}, set()
-        self.seen_symbols = set()
+        self.problem_symbols = set()
         for p in problem_steps:
             n = canon_name(p.name)
             if n in self.problem:
                 self.ambiguous.add(n)
             self.problem[n] = p
-            self.seen_symbols |= func_symbols(p.formula)
+            self.problem_symbols |= func_symbols(p.formula)
         self.steps = {}
+
+    def graph(self, proof_steps, sources):
+        """Index the derivation. Ancestors are kept as bit sets over step
+        positions."""
+        self.proof, self.index = proof_steps, {}
+        for i, s in enumerate(proof_steps):
+            self.index.setdefault(canon_name(s.name), i)
+        self.parents = [[self.index.get(canon_name(q)) for q in src.parents]
+                        if src.kind == 'inference' else [] for src in sources]
+        self.declares = [set().union(*skolem_annotations(src.info)[0])
+                         if src.kind == 'inference' and src.rule == 'skolemize' else set()
+                         for src in sources]
+        self.esa = [src.kind == 'inference' and (src.rule == 'skolemize' or
+                    'esa' in claimed_statuses(src.info)) for src in sources]
+        self.occurs = {}
+        for i, s in enumerate(proof_steps):
+            for f in func_symbols(s.formula):
+                self.occurs.setdefault(f, []).append(i)
+
+    def order(self):
+        """Topological order, keeping file order where the derivation allows.
+        Returns (order, None), or (None, cycle) if some step depends on itself."""
+        import heapq
+        n = len(self.proof)
+        children, waiting = [[] for _ in range(n)], [0] * n
+        for i, ps in enumerate(self.parents):
+            for q in set(ps):
+                children[q].append(i); waiting[i] += 1
+        ready = [i for i in range(n) if waiting[i] == 0]
+        heapq.heapify(ready)
+        order = []
+        while ready:
+            i = heapq.heappop(ready); order.append(i)
+            for c in children[i]:
+                waiting[c] -= 1
+                if waiting[c] == 0:
+                    heapq.heappush(ready, c)
+        if len(order) == n:
+            self.ancestors = [0] * n
+            for i in order:
+                a = 0
+                for q in set(self.parents[i]):
+                    a |= self.ancestors[q] | (1 << q)
+                self.ancestors[i] = a
+            return order, None
+        # every step left over has a parent that is also left over
+        left = set(range(n)) - set(order)
+        path, i = [], min(left)
+        while i not in path:
+            path.append(i)
+            i = min(q for q in self.parents[i] if q in left)
+        return None, path[path.index(i):]
+
+    def depends(self, i, j):
+        """Does step i depend, directly or not, on step j?"""
+        return (self.ancestors[i] >> j) & 1 == 1
+
+    def symbols_before(self, i):
+        """The problem's symbols and those of every step that step i depends on."""
+        out, a, j = set(self.problem_symbols), self.ancestors[i], 0
+        while a:
+            if a & 1:
+                out |= func_symbols(self.proof[j].formula)
+            a >>= 1; j += 1
+        return out
+
+    def fresh(self, i, sym):
+        """May step i introduce `sym` as a Skolem symbol?
+
+        Not if the problem, or any step that step i depends on, mentions it,
+        and not if another step also introduces it. Steps that depend on step
+        i may mention it freely. So may any other step that only claims to be
+        a logical consequence of its parents (status thm or cth): such a step
+        is true whatever `sym` stands for, provided its parents are. The one
+        case left is another step that only preserves satisfiability (status
+        esa) and mentions `sym`: its own witness could depend on what `sym`
+        stands for, so freshness cannot be decided."""
+        name = lambda j: self.proof[j].name
+        if sym in self.problem_symbols:
+            return BAD, f"Skolem symbol {sym} is not fresh: it occurs in the problem"
+        pending = None
+        for j in self.occurs.get(sym, []):
+            if j == i or self.depends(j, i):
+                continue
+            if self.depends(i, j):
+                return BAD, (f"Skolem symbol {sym} is not fresh: it occurs in "
+                             f"{name(j)}, which this step depends on")
+            if sym in self.declares[j]:
+                return BAD, (f"Skolem symbol {sym} is not fresh: step {name(j)} "
+                             "also introduces it")
+            if self.esa[j] and pending is None:
+                pending = (f"Skolem symbol {sym} also occurs in {name(j)}, another "
+                           "step with status esa; cannot check freshness")
+        return (UNSURE, pending) if pending else (GOOD, "")
 
 def _got(claims):
     return ", ".join(claims) if claims else "no status"
@@ -1355,14 +1482,17 @@ def _strict_skolemize(s, src, cx):
     if len(binds) != 1:
         return ev.unsure('S4', "more than one skolemize(Var,Term) annotation")
     ev.ok('S4')
-    v, why = skolemization(parent.formula, s.formula, decls[0][0],
-                           binds[0][0], binds[0][1], cx.seen_symbols)
+    v, why = cx.fresh(cx.current, decls[0][0])
+    if v == GOOD:
+        v, why = skolemization(parent.formula, s.formula, decls[0][0],
+                               binds[0][0], binds[0][1], (), strict=True)
     if v == BAD:
         return ev.bad('S5', why)
     if v == UNSURE:
         # this shape is not covered: the step cannot be accepted, but it may
         # still be refuted, semantically or through another status it claims
-        v2, why2 = check_generic_skolemize(s, parents, cx.seen_symbols, cx.deadline)
+        v2, why2 = check_generic_skolemize(s, parents, cx.symbols_before(cx.current),
+                                           cx.deadline)
         if v2 == BAD:
             return ev.bad('S5', why2)
         probe = _strict_claims(Evidence('skolemize'), 'S6', s, parents, claims,
@@ -1394,7 +1524,8 @@ def _strict_inference(s, src, cx):
         elif st == 'esa':
             # only skolemize steps may be esa: read as a Skolemization, this
             # step can be refuted, but it can never be accepted
-            v, why = check_generic_skolemize(s, parents, cx.seen_symbols, cx.deadline)
+            v, why = check_generic_skolemize(s, parents, cx.symbols_before(cx.current),
+                                             cx.deadline)
             if v != BAD:
                 v, why = UNSURE, (f"status esa can only be checked on skolemize "
                                   f"steps, not on rule {src.rule}")
@@ -1430,13 +1561,30 @@ def check_proof_strict(problem_steps, proof_steps, deadline=None, log_to=None,
     if is_open:
         return "Unknown", f"problem formula {is_open} has free variables", log
 
+    sources = [parse_source(s.source) for s in proof_steps]
+    seen = set()
     for s in proof_steps:
+        if canon_name(s.name) in seen:
+            return "VerifiedBad", f"step {s.name}: duplicate step name", log
+        seen.add(canon_name(s.name))
+    cx.graph(proof_steps, sources)
+    for s, ps, src in zip(proof_steps, cx.parents, sources):
+        missing = [q for q, i in zip(src.parents, ps) if i is None]
+        if missing:
+            return "VerifiedBad", (f"step {s.name}: premise(s) {missing} are not "
+                                   "steps of the proof"), log
+    order, cycle = cx.order()
+    if cycle:
+        names = " -> ".join(proof_steps[i].name for i in cycle + cycle[:1])
+        return "VerifiedBad", f"step {proof_steps[cycle[0]].name}: the derivation is cyclic ({names})", log
+
+    # Steps are checked in an order where every parent comes first: the rules
+    # put no restriction on the order in which a proof lists its steps.
+    for i in order:
         deadline.check()
+        s, src, cx.current = proof_steps[i], sources[i], i
         name = canon_name(s.name)
-        src = parse_source(s.source)
-        if name in cx.steps:
-            ev = Evidence('structure').bad('G1', "duplicate step name")
-        elif src.kind == 'none':
+        if src.kind == 'none':
             ev = Evidence('structure').bad(
                 'G2', "has no source: a step must be imported with a file "
                       "directive or derived by an inference")
@@ -1465,7 +1613,6 @@ def check_proof_strict(problem_steps, proof_steps, deadline=None, log_to=None,
 
         if s.formula == Atom('$false'):
             has_false = True
-        cx.seen_symbols |= func_symbols(s.formula)
         cx.steps[name] = s
         if first_bad:
             break
