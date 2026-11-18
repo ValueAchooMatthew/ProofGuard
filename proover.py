@@ -94,9 +94,11 @@ class Parser:
     def formula(self): return self.iff()
     def iff(self):
         l = self.implies()
-        while self.peek() in ('<=>', '<~>'):
+        while self.peek() in ('<=>', '<~>', '~&', '~|'):
             op = self.next(); r = self.implies()
-            l = Iff(l, r) if op == '<=>' else Not(Iff(l, r))
+            l = {'<=>': Iff, '<~>': lambda x, y: Not(Iff(x, y)),
+                 '~&': lambda x, y: Not(And(x, y)),           # nand
+                 '~|': lambda x, y: Not(Or(x, y))}[op](l, r)   # nor
         return l
     def implies(self):
         l = self.disj()

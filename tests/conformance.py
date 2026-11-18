@@ -20,6 +20,7 @@ from concurrent.futures import ThreadPoolExecutor
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
+sys.setrecursionlimit(100_000)      # some competition formulas nest deeply
 import proover as P
 
 CORPUS = os.path.join(HERE, "proover2026", "ProoVer2026")
@@ -134,6 +135,18 @@ fof(sk1, plain, ![Y]: r(sK0,Y), inference(skolemize, [status(esa), new_symbols(s
 fof(s3, plain, r(sK0,sK1), inference(instantiate, [status(thm)], [sk1])).
 fof(bot, plain, $false, inference(resolution, [status(thm)], [s3, s4])).
 """, VALID),
+    ("nand and nor connectives", """% Proof : Problems/P9.p
+fof(a1, axiom, p ~& q, file('Problems/P9.p', a1)).
+fof(c, conjecture, ~ (p & q), file('Problems/P9.p', c)).
+fof(nc, negated_conjecture, ~ ~ (p & q), inference(negated_conjecture, [status(cth)], [c])).
+fof(bot, plain, $false, inference(consequence, [status(thm)], [a1, nc])).
+""", VALID),
+    ("leaf states nor where the problem says nand", """% Proof : Problems/P9.p
+fof(a1, axiom, p ~| q, file('Problems/P9.p', a1)).
+fof(c, conjecture, ~ (p & q), file('Problems/P9.p', c)).
+fof(nc, negated_conjecture, ~ ~ (p & q), inference(negated_conjecture, [status(cth)], [c])).
+fof(bot, plain, $false, inference(consequence, [status(thm)], [a1, nc])).
+""", BROKEN),
     ("Skolem symbol occurs in an unrelated tautology",
      sub(SK2, SK2_STEP, "fof(taut, plain, (q(sK0(a,a)) | ~q(sK0(a,a))), inference(tautology, [status(thm)], [])).\n" + SK2_STEP), VALID),
     # and the ones they do not
@@ -321,7 +334,8 @@ def main(argv):
     with tempfile.TemporaryDirectory() as d:
         for name, text in (("P1.p", P1), ("P2.p", P2), ("P3.p", P3), ("P4.p", P4), ("P5.p", P5),
                            ("P6.p", P6), ("P7.p", P7),
-                           ("P8.p", "fof(c, conjecture, (?[X]: ![Y]: r(X,Y)) => (![Y]: ?[X]: r(X,Y))).\n")):
+                           ("P8.p", "fof(c, conjecture, (?[X]: ![Y]: r(X,Y)) => (![Y]: ?[X]: r(X,Y))).\n"),
+                           ("P9.p", "fof(a1, axiom, p ~& q).\nfof(c, conjecture, ~ (p & q)).\n")):
             with open(os.path.join(d, name), "w") as f:
                 f.write(text)
         print("hand-written cases:")
