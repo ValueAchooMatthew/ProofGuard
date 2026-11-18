@@ -2,8 +2,12 @@
 """ProoVer 2026 entry point.
 
 Usage:
-    proover-check [--time-limit SECONDS] [--quiet] PROOF
-    proover-check [--time-limit SECONDS] [--quiet] PROBLEM PROOF
+    proover-check [--time-limit SECONDS] [--profile PROFILE] [--quiet] PROOF
+    proover-check [--time-limit SECONDS] [--profile PROFILE] [--quiet] PROBLEM PROOF
+
+PROFILE is strict (the default: the ProoVer 2026 certificate specification)
+or tolerant (ProofGuard 1.0: logical soundness, accepting the dialects of
+real ATP systems).
 
 The problem file is located from the proof itself: the paths named by its
 file('...') directives and its "% Proof : <path>" header are tried relative
@@ -42,6 +46,7 @@ def resolve_problem(proof_path, proof_text, given):
 
 def parse_args(argv):
     limit = float(os.environ.get("PROOVER_TIME_LIMIT", "30"))
+    profile = os.environ.get("PROOVER_PROFILE", "strict")
     quiet = False
     paths = []
     i = 0
@@ -52,18 +57,25 @@ def parse_args(argv):
             limit = float(argv[i])
         elif a.startswith("--time-limit="):
             limit = float(a.split("=", 1)[1])
+        elif a == "--profile":
+            i += 1
+            profile = argv[i]
+        elif a.startswith("--profile="):
+            profile = a.split("=", 1)[1]
         elif a == "--quiet":
             quiet = True
         else:
             paths.append(a)
         i += 1
-    return limit, quiet, paths
+    if profile not in ("strict", "tolerant"):
+        raise ValueError(profile)
+    return limit, profile, quiet, paths
 
 
 def main(argv):
     start = time.monotonic()
     try:
-        limit, quiet, paths = parse_args(argv)
+        limit, profile, quiet, paths = parse_args(argv)
     except (ValueError, IndexError):
         print("% SZS status Unknown : bad command line")
         return 0
@@ -83,6 +95,7 @@ def main(argv):
                 return
             with open(proof_path) as f:
                 proof_text = f.read()
+            located = problem_path is None
             problem_path = resolve_problem(proof_path, proof_text, problem_path)
             if not problem_path or not os.path.exists(problem_path):
                 result["out"] = ("Unknown", "cannot locate the problem file")
@@ -91,10 +104,15 @@ def main(argv):
                 problem_text = f.read()
             deadline = proover.Deadline(limit - 1.0)
             deadline.start = start
+            if not quiet:
+                print(f"   ProofGuard {proover.VERSION}, {profile} profile",
+                      file=sys.stderr)
             verdict, reason, _ = proover.verify(
                 problem_text, proof_text, deadline,
                 log_to=None if quiet else sys.stderr,
-                problem_dir=os.path.dirname(os.path.abspath(problem_path)))
+                problem_dir=os.path.dirname(os.path.abspath(problem_path)),
+                profile=profile,
+                problem_file=os.path.basename(problem_path) if located else None)
             result["out"] = (verdict, reason)
         except proover.OutOfTime:
             result["out"] = ("Timeout", None)

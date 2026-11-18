@@ -12,8 +12,8 @@ CLI = os.path.join(ROOT, "proover-check")
 EXAMPLES = os.path.join(HERE, "examples")
 
 
-def run(problem, proof, timeout=40):
-    args = [sys.executable, CLI, "--quiet"]
+def run(problem, proof, timeout=40, profile="strict"):
+    args = [sys.executable, CLI, "--quiet", "--profile", profile]
     if problem is not None:
         args.append(problem)
     args.append(proof)
@@ -44,6 +44,21 @@ SLOW = [
 PROBLEM_1 = """
 fof(a1, axiom, p(a) & ~p(b)).
 fof(c, conjecture, ?[X] : ~(p(X) => ![Y] : (p(Y)))).
+"""
+
+OLD_DIALECT_PROBLEM = """
+fof(marriage, axiom, ! [M] : ? [B] : in_love(B, M)).
+fof(c, conjecture, ?[X,Y] : in_love(X, Y)).
+"""
+
+OLD_DIALECT_PROOF = """
+fof(marriage, axiom, ! [M] : ? [B] : in_love(B, M), file('x.p', marriage)).
+fof(c, conjecture, ?[X,Y] : in_love(X, Y), file('x.p', c)).
+fof(nc, negated_conjecture, ~(?[X,Y] : in_love(X, Y)), inference(negated_conjecture, [status(cth)], [c])).
+fof(sk, plain, ! [M] : in_love(sK0(M), M),
+    inference(skolemize, [status(esa), new_symbols(skolem, [sK0]), skolemized(B), bind(B, sK0(M))], [marriage])).
+fof(i1, plain, in_love(sK0(m0), m0), inference(instantiate, [status(thm)], [sk])).
+fof(f1, plain, $false, inference(consequence, [status(thm)], [nc, i1])).
 """
 
 SYNTHETIC = [
@@ -105,19 +120,16 @@ fof(a1, axiom, p(a) & ~p(b), file('x.p', a1)).
 fof(f1, plain, $false, inference(consequence, [status(thm)], [s1, a1])).
 """, "VerifiedBad"),
 
-    ("skolemize old annotation dialect", """
-fof(marriage, axiom, ! [M] : ? [B] : in_love(B, M)).
-fof(c, conjecture, ?[X,Y] : in_love(X, Y)).
-""", """
-fof(marriage, axiom, ! [M] : ? [B] : in_love(B, M), file('x.p', marriage)).
-fof(c, conjecture, ?[X,Y] : in_love(X, Y), file('x.p', c)).
-fof(nc, negated_conjecture, ~(?[X,Y] : in_love(X, Y)), inference(negated_conjecture, [status(cth)], [c])).
-fof(sk, plain, ! [M] : in_love(sK0(M), M),
-    inference(skolemize, [status(esa), new_symbols(skolem, [sK0]), skolemized(B), bind(B, sK0(M))], [marriage])).
-fof(i1, plain, in_love(sK0(m0), m0), inference(instantiate, [status(thm)], [sk])).
-fof(f1, plain, $false, inference(consequence, [status(thm)], [nc, i1])).
-""", "VerifiedGood"),
+    ("skolemize old annotation dialect", OLD_DIALECT_PROBLEM, OLD_DIALECT_PROOF, "VerifiedBad"),
 ]
+
+# The skolemized()/bind() annotations predate the competition's skolemize(Var,Term).
+# The tolerant profile still reads them; the strict profile requires the
+# specified annotation.
+TOLERANT = [
+    ("skolemize old annotation dialect", OLD_DIALECT_PROBLEM, OLD_DIALECT_PROOF, "VerifiedGood"),
+]
+
 
 
 def main():
@@ -141,14 +153,16 @@ def main():
         for problem, proof, want in SLOW:
             check(os.path.basename(proof), run(None, proof), want)
 
-    print("synthetic cases:")
     with tempfile.TemporaryDirectory() as d:
-        for label, problem, proof, want in SYNTHETIC:
-            pp = os.path.join(d, "x.p")
-            sp = os.path.join(d, "x.s")
-            with open(pp, "w") as f: f.write(problem)
-            with open(sp, "w") as f: f.write(proof)
-            check(label, run(pp, sp), want)
+        for title, cases, profile in (("synthetic cases:", SYNTHETIC, "strict"),
+                                      ("tolerant profile:", TOLERANT, "tolerant")):
+            print(title)
+            for label, problem, proof, want in cases:
+                pp = os.path.join(d, "x.p")
+                sp = os.path.join(d, "x.s")
+                with open(pp, "w") as f: f.write(problem)
+                with open(sp, "w") as f: f.write(proof)
+                check(label, run(pp, sp, profile=profile), want)
 
     print(f"\n{total - failures}/{total} passed")
     return 1 if failures else 0

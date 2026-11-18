@@ -18,7 +18,7 @@ BASELINE = os.path.join(HERE, "tstp_baseline.txt")
 
 def check(problem, proof):
     out = subprocess.run(
-        [sys.executable, CLI, "--quiet", problem, proof],
+        [sys.executable, CLI, "--quiet", "--profile", "tolerant", problem, proof],
         capture_output=True, text=True, timeout=45).stdout
     for line in out.splitlines():
         if line.startswith("% SZS status "):

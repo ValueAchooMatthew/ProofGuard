@@ -1,12 +1,21 @@
-"""Semantic verifier for TSTP refutation proofs of FOF problems (ProoVer 2026).
+"""Verifier for TSTP refutation proofs of FOF problems (ProoVer 2026).
 
 Verdicts: VerifiedGood, VerifiedBad, Unknown. Running out of the wall-clock
 budget raises OutOfTime, which the CLI reports as Timeout. The external ATP
 is only ever invoked on a single step together with its own premises.
+
+There are two profiles. The strict profile (the default) checks a proof
+against the ProoVer 2026 certificate specification: a step is accepted only
+when every obligation the specification puts on that kind of step has been
+discharged. The tolerant profile is the ProofGuard 1.0 checker, which also
+accepts the dialects of real ATP systems and only establishes that a proof
+is logically sound.
 """
 from __future__ import annotations
 import os, re, subprocess, tempfile, itertools, shutil, time
 from dataclasses import dataclass, field
+
+VERSION = "1.1"
 
 
 class OutOfTime(Exception):
@@ -347,6 +356,7 @@ class Step:
     annots: str = ""
     opaque_premises: bool = False
     statuses: frozenset = frozenset()  # every status() across a nested chain
+    source: str = ""                   # the source field exactly as written
 
 
 def strip_comments(text):
@@ -363,7 +373,7 @@ def strip_comments(text):
         out.append(line)
     return "\n".join(out)
 
-def annotated_units(text, deadline=None):
+def annotated_units(text, deadline=None, spans=None):
     units = []
     n = len(text)
     i = 0
@@ -404,6 +414,8 @@ def annotated_units(text, deadline=None):
                 depth -= 1
                 if depth == 0:
                     units.append((lang, text[start:p]))
+                    if spans is not None:
+                        spans.append((j, p + 1))
                     break
             p += 1
         else:
@@ -492,6 +504,7 @@ def parse_annotated(lang, unit):
     step = Step(name, role, formula)
     if len(parts) > 3:
         source = parts[3].strip()
+        step.source = source
         fm = _FILE.match(source)
         im = re.match(r"introduced\(\s*(\w+)", source)
         flat = None if (fm or im) else _flatten_inference(source)
@@ -646,7 +659,6 @@ def check_skolemize(step, parents, seen_symbols, deadline):
         return BAD, f"skolemize must have status esa, got {step.status}"
     if len(parents) != 1:
         return UNSURE, "expected exactly one parent"
-    parent = parents[0].formula
 
     ann = _skolem_annotation(step.annots)
     if ann is None:
@@ -656,20 +668,33 @@ def check_skolemize(step, parents, seen_symbols, deadline):
         return BAD, "skolemize annotations are inconsistent"
     if len(new_syms) != 1:
         return UNSURE, "multi-symbol skolemization not supported"
-    new_sym = new_syms[0]
+    return skolemization(parents[0].formula, step.formula, new_syms[0],
+                         sk_var, term_text, seen_symbols)
+
+def skolemization(parent, formula, new_sym, sk_var, term_text, seen_symbols):
+    """Is `formula` the result of replacing the existential `sk_var` of
+    `parent` by the term `term_text`, where that term is the fresh symbol
+    `new_sym` applied to the universals in scope?"""
     if new_sym in seen_symbols:
         return BAD, f"Skolem symbol {new_sym} is not fresh (already in use)"
 
-    scope, node = [], parent
+    # Walk the quantifier prefix down to the existential being eliminated.
+    # Other existentials may sit above it (as in ![X]: ?[Y]: ?[Z] when Z is
+    # eliminated first); the Skolem term depends only on the universals.
+    prefix, node = [], parent
     while True:
         if isinstance(node, Forall):
-            scope.append(node.var); node = node.body
+            prefix.append(node); node = node.body
         elif isinstance(node, Exists):
             if node.var == sk_var:
                 break
-            return UNSURE, "existential nesting not handled; cannot check"
+            prefix.append(node); node = node.body
         else:
             return BAD, f"no existential {sk_var} at the expected position"
+    scope = [q.var for q in prefix if isinstance(q, Forall)]
+    nested = any(isinstance(q, Exists) for q in prefix)
+    if len({q.var for q in prefix} | {sk_var}) != len(prefix) + 1:
+        return UNSURE, "quantified variable names repeat in the prefix; cannot check"
 
     try:
         bind_term = parse_term(term_text.strip())
@@ -677,16 +702,21 @@ def check_skolemize(step, parents, seen_symbols, deadline):
         return UNSURE, "cannot parse skolem binding term"
     expected = Func(new_sym, tuple(Var(v) for v in scope))
     if bind_term != expected:
+        if nested:
+            # only the exact term is checked under existentials; anything else
+            # is left undecided rather than rejected
+            return UNSURE, (f"Skolem term {pp_term(bind_term)} under other "
+                            f"existentials is not {pp_term(expected)}; cannot check")
         return BAD, (f"Skolem term {pp_term(bind_term)} should be {pp_term(expected)} "
                      "(fresh symbol applied to exactly the universals in scope)")
 
     rebuilt = subst(node.body, {sk_var: bind_term})
-    for v in reversed(scope):
-        rebuilt = Forall(v, rebuilt)
-    if equal_mod_alpha(rebuilt, step.formula):
+    for q in reversed(prefix):
+        rebuilt = type(q)(q.var, rebuilt)
+    if equal_mod_alpha(rebuilt, formula):
         return GOOD, f"correct Skolemization introducing {pp_term(expected)}"
     return BAD, (f"Skolemization result is wrong; expected {pp(rebuilt)} "
-                 f"but the step states {pp(step.formula)}")
+                 f"but the step states {pp(formula)}")
 
 
 def _sk_occurrences(f, sk):
@@ -1025,13 +1055,485 @@ def check_proof(problem_steps, proof_steps, deadline=None, log_to=None):
     return "VerifiedGood", "all steps verified", log
 
 
-def verify(problem_text, proof_text, deadline=None, log_to=None, problem_dir=None):
+# ---------------------------------------------------------------------------
+# Strict profile: the ProoVer 2026 certificate specification
+#
+# Every annotation of a step is treated as a claim to be checked, not as a
+# hint that helps the checker. A step is accepted only when every obligation
+# listed for its form in SPEC has passed, in that order. There are no
+# fallbacks: a step that fails an obligation, or cannot discharge it, is
+# never retried with a different check. Checks that go beyond what the
+# specification prescribes (entailment, de-Skolemization) are used here only
+# to refute a step, never to accept one.
+# ---------------------------------------------------------------------------
+
+SPEC = {
+    'leaf': ('L1', 'L2', 'L3', 'L4', 'L5', 'L6'),
+    'negated_conjecture': ('D1', 'D2', 'N1', 'N2', 'N3', 'N4'),
+    'skolemize': ('D1', 'D2', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6'),
+    'inference': ('D1', 'D2', 'I1', 'I2'),
+}
+
+OBLIGATIONS = {
+    'G1': "step names are unique",
+    'G2': "the step is imported with a file directive or derived by an inference",
+    'G3': "the formula has no free variables",
+    'L1': "an imported step has role axiom or conjecture",
+    'L2': "the file directive names a formula",
+    'L3': "the file directive names the problem being checked",
+    'L4': "the named formula exists in the problem",
+    'L5': "the step and the named formula are both axioms or both the conjecture",
+    'L6': "the step's formula is alpha-equivalent to the named formula",
+    'D1': "a derived step does not have role axiom or conjecture",
+    'D2': "every parent is an earlier step of the proof",
+    'N1': "a negated_conjecture step claims status cth",
+    'N2': "its only parent is the imported conjecture",
+    'N3': "its formula is the negation of the conjecture",
+    'N4': "it claims no other status",
+    'S1': "a skolemize step claims status esa",
+    'S2': "it has exactly one parent, which is not the conjecture",
+    'S3': "it declares its Skolem symbol with new_symbols(skolem,[sK])",
+    'S4': "it names the eliminated variable and its term with skolemize(Var,Term)",
+    'S5': "its formula is the Skolemization of the parent that the annotations describe",
+    'S6': "it claims no other status",
+    'I1': "the conjecture is not among the parents",
+    'I2': "it claims status thm and nothing else, and its parents entail it",
+}
+
+
+@dataclass(frozen=True)
+class Source:
+    kind: str               # 'none' | 'file' | 'inference' | 'other'
+    path: str = None        # file: the file the directive names
+    name: str = None        # file: the formula the directive names
+    rule: str = None        # inference: the rule name
+    info: tuple = ()        # inference: every item of the info list
+    parents: tuple = ()     # inference: the parent names
+
+def _call(text):
+    """Read 'head(a, b, ...)' as (head, [a, b, ...]). None if the text is not
+    exactly one such term."""
+    text = text.strip()
+    m = re.match(r"[A-Za-z_$][\w$]*\s*\(", text)
+    if not m or not text.endswith(")"):
+        return None
+    depth, quoted = 0, False
+    for i, c in enumerate(text):
+        if quoted:
+            quoted = c != "'"
+        elif c == "'":
+            quoted = True
+        elif c in "([":
+            depth += 1
+        elif c in ")]":
+            depth -= 1
+            if depth == 0 and i != len(text) - 1:
+                return None
+    if depth != 0 or quoted:
+        return None
+    return text[:m.end() - 1].strip(), [a.strip() for a in split_top(text[m.end():-1])]
+
+def _items(text):
+    """Read '[a, b, ...]' as [a, b, ...]. None if the text is not a list."""
+    text = text.strip()
+    if not (text.startswith("[") and text.endswith("]")):
+        return None
+    return [a.strip() for a in split_top(text[1:-1])]
+
+def parse_source(text):
+    """Read the whole source field. Anything that is not a file directive or
+    a flat inference record over named parents is reported as 'other'."""
+    if not text.strip():
+        return Source('none')
+    c = _call(text)
+    if c is not None:
+        head, args = c
+        if head == 'file' and len(args) in (1, 2) and all(args):
+            return Source('file', path=args[0],
+                          name=args[1] if len(args) == 2 else None)
+        if head == 'inference' and len(args) == 3:
+            info, parents = _items(args[1]), _items(args[2])
+            if (_NAME.match(args[0]) and info is not None and parents is not None
+                    and all(_NAME.match(p) for p in parents)):
+                return Source('inference', rule=args[0], info=tuple(info),
+                              parents=tuple(parents))
+    return Source('other')
+
+def canon_name(name):
+    """In TPTP, 'a1' and a1 are the same name."""
+    name = name.strip()
+    m = re.fullmatch(r"'([a-z][A-Za-z0-9_]*)'", name)
+    return m.group(1) if m else name
+
+def claimed_statuses(info):
+    """Every status an inference record claims, in order, without repeats.
+    A status item that cannot be read is reported as '?'."""
+    out = []
+    for item in info:
+        if not re.match(r"status\b", item):
+            continue
+        c = _call(item)
+        ok = c is not None and len(c[1]) == 1 and re.fullmatch(r"\w+", c[1][0])
+        st = c[1][0] if ok else '?'
+        if st not in out:
+            out.append(st)
+    return out
+
+def skolem_annotations(info):
+    """The new_symbols(skolem,[...]) and skolemize(Var,Term) items of an info
+    list, as (symbol lists, (var, term) pairs, all readable?)."""
+    decls, binds, readable = [], [], True
+    for item in info:
+        if re.match(r"new_symbols\b", item):
+            c = _call(item)
+            syms = _items(c[1][1]) if c is not None and len(c[1]) == 2 else None
+            if syms is None or not all(_NAME.match(x) for x in syms):
+                readable = False
+            elif c[1][0] == 'skolem':
+                decls.append(syms)
+        elif re.match(r"skolemize\b", item):
+            c = _call(item)
+            if (c is not None and len(c[1]) == 2
+                    and re.fullmatch(r"[A-Z_]\w*", c[1][0])):
+                binds.append((c[1][0], c[1][1]))
+            else:
+                readable = False
+    return decls, binds, readable
+
+
+class Evidence:
+    """What has been established about one step. The step counts as verified
+    only when `passed` is exactly the list SPEC gives for its form."""
+    def __init__(self, form):
+        self.form, self.passed = form, []
+        self.verdict, self.failed, self.why = None, None, ""
+    def ok(self, oid):
+        self.passed.append(oid)
+    def bad(self, oid, why):
+        self.verdict, self.failed, self.why = BAD, oid, why
+        return self
+    def unsure(self, oid, why):
+        self.verdict, self.failed, self.why = UNSURE, oid, why
+        return self
+    def good(self, why):
+        self.verdict, self.why = GOOD, why
+        return self
+    def complete(self):
+        return self.verdict == GOOD and tuple(self.passed) == SPEC.get(self.form)
+
+
+class _Strict:
+    """State shared by the strict checks of one proof."""
+    def __init__(self, problem_steps, deadline, problem_file):
+        self.deadline, self.problem_file = deadline, problem_file
+        self.problem, self.ambiguous = {}, set()
+        self.seen_symbols = set()
+        for p in problem_steps:
+            n = canon_name(p.name)
+            if n in self.problem:
+                self.ambiguous.add(n)
+            self.problem[n] = p
+            self.seen_symbols |= func_symbols(p.formula)
+        self.steps = {}
+
+def _got(claims):
+    return ", ".join(claims) if claims else "no status"
+
+def _strict_leaf(s, src, cx):
+    ev = Evidence('leaf')
+    if s.role not in ('axiom', 'conjecture'):
+        return ev.bad('L1', f"imported with a file directive but has role {s.role}")
+    ev.ok('L1')
+    if src.name is None:
+        return ev.bad('L2', "file directive does not name a formula of the problem")
+    ev.ok('L2')
+    if cx.problem_file is not None and \
+            os.path.basename(src.path.strip("'")) != cx.problem_file:
+        return ev.unsure('L3', f"file directive names {src.path}, "
+                               "which is not the problem being checked")
+    ev.ok('L3')
+    ref = canon_name(src.name)
+    if ref in cx.ambiguous:
+        return ev.unsure('L4', f"the problem has several formulas named {ref}")
+    origin = cx.problem.get(ref)
+    if origin is None:
+        return ev.bad('L4', f"file directive names {ref}, which is not in the problem")
+    ev.ok('L4')
+    if origin.role not in ('axiom', 'conjecture'):
+        return ev.unsure('L5', f"{ref} has role {origin.role} in the problem; only "
+                               "axioms and the conjecture can be imported")
+    if origin.role != s.role:
+        return ev.bad('L5', f"has role {s.role}, but {ref} has role "
+                            f"{origin.role} in the problem")
+    ev.ok('L5')
+    if not equal_mod_alpha(s.formula, origin.formula):
+        return ev.bad('L6', f"formula differs from {ref} in the problem")
+    ev.ok('L6')
+    return ev.good(f"imports {ref}")
+
+def _strict_parents(ev, s, src, cx):
+    """The obligations every derived step shares. Returns the parent steps,
+    or None once `ev` holds a verdict."""
+    if s.role in ('axiom', 'conjecture'):
+        ev.bad('D1', f"has role {s.role} but is derived by {src.rule}; axioms "
+                     "and the conjecture must be imported with a file directive")
+        return None
+    ev.ok('D1')
+    missing = [p for p in src.parents if canon_name(p) not in cx.steps]
+    if missing:
+        ev.bad('D2', f"premise(s) {missing} not defined before this step")
+        return None
+    ev.ok('D2')
+    return [cx.steps[canon_name(p)] for p in src.parents]
+
+def _strict_claims(ev, oid, s, parents, claims, prescribed, cx, summary):
+    """A step may claim only the status its form prescribes. Any other
+    status keeps the step from being accepted, and is a flaw if it can be
+    refuted."""
+    extra = [st for st in claims if st != prescribed]
+    if 'thm' in extra:
+        v, why = ATP.entails(parents, s.formula, cx.deadline)
+        if v == BAD:
+            return ev.bad(oid, f"also claims status thm, but {why}")
+    if extra:
+        return ev.unsure(oid, f"also claims status {extra[0]}; a {ev.form} "
+                              f"step may only claim {prescribed}")
+    ev.ok(oid)
+    return ev.good(summary)
+
+def _strict_negated_conjecture(s, src, cx):
+    ev = Evidence('negated_conjecture')
+    parents = _strict_parents(ev, s, src, cx)
+    if parents is None:
+        return ev
+    claims = claimed_statuses(src.info)
+    if 'cth' not in claims:
+        return ev.bad('N1', f"negated_conjecture must have status cth, got {_got(claims)}")
+    ev.ok('N1')
+    if len(parents) != 1:
+        return ev.bad('N2', "negated_conjecture must have exactly one parent")
+    parent = parents[0]
+    if parent.role != 'conjecture':
+        return ev.bad('N2', f"negated_conjecture parent {parent.name} is not the conjecture")
+    ev.ok('N2')
+    r = ATP.decide(Iff(universal_closure(s.formula),
+                       negate(universal_closure(parent.formula))), cx.deadline)
+    if r == "CounterSatisfiable":
+        return ev.bad('N3', "formula is NOT the negation of the conjecture")
+    if r != "Theorem":
+        return ev.unsure('N3', "prover could not decide negation equivalence")
+    ev.ok('N3')
+    return _strict_claims(ev, 'N4', s, parents, claims, 'cth', cx,
+                          "formula is the correct negation of the conjecture")
+
+def _strict_skolemize(s, src, cx):
+    ev = Evidence('skolemize')
+    parents = _strict_parents(ev, s, src, cx)
+    if parents is None:
+        return ev
+    claims = claimed_statuses(src.info)
+    if 'esa' not in claims:
+        return ev.bad('S1', f"skolemize must have status esa, got {_got(claims)}")
+    ev.ok('S1')
+    if len(parents) != 1:
+        return ev.bad('S2', "skolemize must have exactly one parent")
+    parent = parents[0]
+    if parent.role == 'conjecture':
+        return ev.bad('S2', f"conjecture {parent.name} used as a premise "
+                            "(only a negated_conjecture step may consume it)")
+    ev.ok('S2')
+    decls, binds, readable = skolem_annotations(src.info)
+    if not readable:
+        return ev.unsure('S3', "skolemize annotations not understood")
+    if not decls:
+        return ev.bad('S3', "skolemize step has no new_symbols(skolem,[...]) annotation")
+    if len(decls) != 1 or len(decls[0]) != 1:
+        return ev.unsure('S3', "multi-symbol skolemization not supported")
+    ev.ok('S3')
+    if not binds:
+        return ev.bad('S4', "skolemize step has no skolemize(Var,Term) annotation")
+    if len(binds) != 1:
+        return ev.unsure('S4', "more than one skolemize(Var,Term) annotation")
+    ev.ok('S4')
+    v, why = skolemization(parent.formula, s.formula, decls[0][0],
+                           binds[0][0], binds[0][1], cx.seen_symbols)
+    if v == BAD:
+        return ev.bad('S5', why)
+    if v == UNSURE:
+        # this shape is not covered: the step cannot be accepted, but it may
+        # still be refuted, semantically or through another status it claims
+        v2, why2 = check_generic_skolemize(s, parents, cx.seen_symbols, cx.deadline)
+        if v2 == BAD:
+            return ev.bad('S5', why2)
+        probe = _strict_claims(Evidence('skolemize'), 'S6', s, parents, claims,
+                               'esa', cx, "")
+        if probe.verdict == BAD:
+            return ev.bad('S6', probe.why)
+        return ev.unsure('S5', why)
+    ev.ok('S5')
+    return _strict_claims(ev, 'S6', s, parents, claims, 'esa', cx, why)
+
+def _strict_inference(s, src, cx):
+    ev = Evidence('inference')
+    parents = _strict_parents(ev, s, src, cx)
+    if parents is None:
+        return ev
+    conj = [p.name for p in parents if p.role == 'conjecture']
+    if conj:
+        return ev.bad('I1', f"conjecture {conj[0]} used as a premise "
+                            "(only a negated_conjecture step may consume it)")
+    ev.ok('I1')
+    claims = claimed_statuses(src.info)
+    if not claims:
+        return ev.unsure('I2', f"rule {src.rule} has no status, so the "
+                               "specification gives no way to check it")
+    pending = None
+    for st in claims:
+        if st == 'thm':
+            v, why = ATP.entails(parents, s.formula, cx.deadline)
+        elif st == 'esa':
+            # only skolemize steps may be esa: read as a Skolemization, this
+            # step can be refuted, but it can never be accepted
+            v, why = check_generic_skolemize(s, parents, cx.seen_symbols, cx.deadline)
+            if v != BAD:
+                v, why = UNSURE, (f"status esa can only be checked on skolemize "
+                                  f"steps, not on rule {src.rule}")
+        else:
+            v, why = UNSURE, f"status {st} on rule {src.rule} cannot be checked"
+        if v == BAD:
+            return ev.bad('I2', why)
+        if v == UNSURE and pending is None:
+            pending = why
+    if pending is not None:
+        return ev.unsure('I2', pending)
+    ev.ok('I2')
+    return ev.good("ATP confirms premises entail the step")
+
+_STRICT_RULES = {'negated_conjecture': _strict_negated_conjecture,
+                 'skolemize': _strict_skolemize}
+
+def check_proof_strict(problem_steps, proof_steps, deadline=None, log_to=None,
+                       problem_file=None):
+    """Return (verdict, reason, log) under the strict profile. `log` holds
+    one (step name, Evidence) pair per step that was checked."""
+    deadline = deadline or Deadline()
+    cx = _Strict(problem_steps, deadline, problem_file)
+    log = []
+    first_bad = first_unsure = None
+    has_false = False
+
+    if not proof_steps:
+        return "VerifiedBad", "proof contains no formulae", log
+    if sum(p.role == 'conjecture' for p in problem_steps) > 1:
+        return "Unknown", "the problem has more than one conjecture", log
+    is_open = open_formula(problem_steps)
+    if is_open:
+        return "Unknown", f"problem formula {is_open} has free variables", log
+
+    for s in proof_steps:
+        deadline.check()
+        name = canon_name(s.name)
+        src = parse_source(s.source)
+        if name in cx.steps:
+            ev = Evidence('structure').bad('G1', "duplicate step name")
+        elif src.kind == 'none':
+            ev = Evidence('structure').bad(
+                'G2', "has no source: a step must be imported with a file "
+                      "directive or derived by an inference")
+        elif src.kind == 'file':
+            ev = _strict_leaf(s, src, cx)
+        elif src.kind == 'inference':
+            ev = _STRICT_RULES.get(src.rule, _strict_inference)(s, src, cx)
+        else:
+            ev = Evidence('structure').unsure(
+                'G2', "source is neither a file directive nor a flat inference record")
+        if ev.verdict == GOOD and free_vars(s.formula):
+            # free variables are read as universally quantified by the ATP but
+            # are invisible to the Skolemization check, so they are not accepted
+            ev = Evidence(ev.form).unsure(
+                'G3', "formula has free variables, which a fof formula may not have")
+
+        log.append((s.name, ev))
+        if log_to is not None:
+            tag = {GOOD: "ok  ", BAD: "BAD ", UNSURE: "????"}[ev.verdict]
+            where = f"{ev.failed}: " if ev.failed else ""
+            print(f"   [{tag}] {s.name:18s} {ev.form:18s} {where}{ev.why}", file=log_to)
+        if ev.verdict == BAD and first_bad is None:
+            first_bad = (s.name, ev.why)
+        if ev.verdict == UNSURE and first_unsure is None:
+            first_unsure = (s.name, ev.why)
+
+        if s.formula == Atom('$false'):
+            has_false = True
+        cx.seen_symbols |= func_symbols(s.formula)
+        cx.steps[name] = s
+        if first_bad:
+            break
+
+    if first_bad:
+        return "VerifiedBad", f"step {first_bad[0]}: {first_bad[1]}", log
+    if not has_false:
+        return "VerifiedBad", "refutation never derives $false", log
+    if first_unsure:
+        return "Unknown", f"step {first_unsure[0]}: {first_unsure[1]}", log
+    # A proof is only accepted on complete evidence: every step must have
+    # passed exactly the obligations SPEC lists for its form.
+    for name, ev in log:
+        if not ev.complete():
+            return "Unknown", f"step {name}: evidence is incomplete", log
+    return "VerifiedGood", "all steps verified", log
+
+
+def open_formula(steps):
+    """The name of the first step whose formula has free variables, if any."""
+    for s in steps:
+        if free_vars(s.formula):
+            return s.name
+    return None
+
+def unparsed(text, spans):
+    """What is left of a file once its comments and the fof/cnf formulas at
+    `spans` are removed."""
+    rest, last = [], 0
+    for a, b in spans:
+        rest.append(text[last:a]); last = b
+    rest.append(text[last:])
+    return re.sub(r"[\s.]", "", "".join(rest))
+
+def _read(text, deadline):
+    text = strip_comments(text)
+    spans = []
+    steps = [parse_annotated(lang, u)
+             for lang, u in annotated_units(text, deadline, spans)]
+    return steps, unparsed(text, spans)
+
+PROFILES = ("strict", "tolerant")
+
+def verify(problem_text, proof_text, deadline=None, log_to=None, problem_dir=None,
+           profile="strict", problem_file=None):
+    """Check a proof. `problem_file` is the name of the problem file when it
+    was located from the proof itself; the strict profile then requires every
+    file directive to name that file."""
+    if profile not in PROFILES:
+        raise ValueError(f"unknown profile {profile!r}")
     deadline = deadline or Deadline()
     try:
-        problem_steps = parse_tstp(expand_includes(problem_text, problem_dir), deadline)
-        proof_steps = parse_tstp(proof_text, deadline)
+        problem_steps, problem_rest = _read(expand_includes(problem_text, problem_dir), deadline)
+        proof_steps, proof_rest = _read(proof_text, deadline)
     except OutOfTime:
         raise
     except (SyntaxError, RecursionError) as e:
         return "Unknown", f"parse error: {e}", []
-    return check_proof(problem_steps, proof_steps, deadline, log_to)
+    if profile == "tolerant":
+        verdict, reason, log = check_proof(problem_steps, proof_steps, deadline, log_to)
+        is_open = open_formula(problem_steps) or open_formula(proof_steps)
+        if verdict == "VerifiedGood" and is_open:
+            return "Unknown", f"formula {is_open} has free variables", log
+        return verdict, reason, log
+    if problem_rest:
+        return "Unknown", "the problem file has content that is not a fof or cnf formula", []
+    verdict, reason, log = check_proof_strict(problem_steps, proof_steps, deadline,
+                                              log_to, problem_file)
+    if verdict == "VerifiedGood" and proof_rest:
+        return "Unknown", "the proof file has content that is not a fof or cnf formula", log
+    return verdict, reason, log

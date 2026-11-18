@@ -30,7 +30,7 @@ def eprove(problem):
 
 def check(problem, proof_path):
     out = subprocess.run(
-        [sys.executable, CLI, "--quiet", problem, proof_path],
+        [sys.executable, CLI, "--quiet", "--profile", "tolerant", problem, proof_path],
         capture_output=True, text=True, timeout=45).stdout
     for line in out.splitlines():
         if line.startswith("% SZS status "):
