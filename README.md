@@ -89,7 +89,7 @@ and testing the checker.
 ### Launch command
 
 ```
-./proover-check [--time-limit SECONDS] [--quiet] PROOF
+./proover-check [--time-limit SECONDS] [--profile strict|tolerant] [--quiet] PROOF
 ```
 
 Prints exactly one line to stdout:
@@ -110,7 +110,42 @@ the budget runs out.
 Requires Python 3.8+ and the E prover (`eprover` on PATH, or point
 `ATP_EPROVER_BIN` at a binary).
 
-### How it verifies
+### Profiles
+
+ProofGuard 1.1 has two profiles. The strict profile is the default and
+checks a proof against the ProoVer 2026 certificate specification. The
+tolerant profile is the ProofGuard 1.0 checker, which also accepts the
+dialects of real ATP systems and only establishes that a proof is
+logically sound. ProofGuard 1.0 itself, as submitted to the competition,
+is the [v1.0 release](https://github.com/ValueAchooMatthew/ProofGuard/releases/tag/v1.0).
+
+### How the strict profile verifies
+
+Every annotation of a step is read as a claim to be checked. Each kind of
+step has a fixed list of obligations taken from the competition rules, and a
+step is accepted only when all of them pass. There are no fallbacks: the
+ATP and de-Skolemization can reject a step but never accept one.
+
+- **Imported steps** must have role axiom or conjecture, name a formula of
+  the problem being checked, have the same role as that formula, and be
+  alpha-equivalent to it.
+- **negated_conjecture** steps must claim status `cth`, have the imported
+  conjecture as their only parent, be equivalent to its negation, and claim
+  no other status.
+- **skolemize** steps must claim status `esa`, have one parent that is not
+  the conjecture, declare their symbol with `new_symbols(skolem,[sK])`, and
+  name the eliminated variable with `skolemize(Var,Term)`. The step is then
+  rebuilt and compared. The existential may sit under negations or other
+  existentials, the term may list the universals in any order, and the
+  symbol may not occur in the problem, in anything the step depends on, or
+  in another Skolemization.
+- **All other steps** must claim status `thm` and nothing else, may not use
+  the conjecture, and are checked by calling E on the step and its premises.
+- **Structure**: names are unique, every premise is a step of the proof, the
+  derivation has no cycles (steps may appear in any order), no formula has
+  free variables, and the proof derives `$false`.
+
+### How the tolerant profile verifies
 
 - **Input steps** (`file(...)` sources) must match a problem formula up to
   variable renaming, with the same conjecture-ness. Fabricated or tampered
@@ -132,8 +167,8 @@ Requires Python 3.8+ and the E prover (`eprover` on PATH, or point
   never re-proved independently. E showing the step countersatisfiable yields
   a definite `VerifiedBad`.
 - **Structural soundness**: premises must be defined before use (no circular
-  or forward references), step names must be unique, and the proof must
-  actually derive `$false`.
+  or forward references), step names must be unique, no formula may have
+  free variables, and the proof must actually derive `$false`.
 - Nested E-style inference chains (`inference(..., [inference(...)])`) are
   flattened, so unmodified `eprover --proof-object` output verifies too.
 
@@ -190,6 +225,22 @@ leaves, orphaned negations, circular premises) and asserts the verifier never
 answers `VerifiedGood`. Together these keep dialect-coverage work from
 drifting into accepting too much.
 
+```
+python3 tests/proover2026.py --fetch                                # download the competition proofs
+python3 tests/proover2026.py --baseline tests/proover2026_v1.0.txt  # compare with ProofGuard 1.0
+python3 tests/conformance.py                                        # proofs that break the specification
+```
+
+`tests/proover2026.py` runs the checker over the 100 published ProoVer 2026
+proofs and compares its verdicts with the correct answers from the official
+results, and with a recorded run of an earlier version. It flags any proof
+that was right before and is wrong now. `tests/proover2026_v1.0.txt` and
+`tests/proover2026_v1.1.txt` record the two versions.
+`tests/conformance.py` checks hand-written proofs, and one-place mutations of
+every valid competition proof, that break the certificate specification.
+None may be accepted. It also checks that every accepted proof is still
+accepted with its steps in reverse order.
+
 `tests/examples/` holds the official ProoVer 2026 examples (correct proofs
 COR*, evil proofs EVL*, and the 8 MB TMO000 stress proof — which hides a real
 flaw at step sk219 that this verifier finds in ~12 s).
@@ -205,6 +256,8 @@ would accept it.
   deadline-aware E invocation.
 - `proover-check` — competition entry point (one SZS line, timeout guard).
 - `tests/run_tests.py` — test suite.
+- `tests/proover2026.py`, `tests/conformance.py`: evaluation on the
+  competition proofs and conformance to the specification.
 - `Dockerfile` — self-contained image with E bundled.
 
 Please note that AI was used in part to help with the coding and documenting of this project.

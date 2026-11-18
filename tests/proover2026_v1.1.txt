@@ -1,0 +1,102 @@
+# proof	verdict	seconds	reason
+# ProofGuard 1.1, strict profile, with the E 3.3.5 binary from the 1.0 bundle
+PRV000+1	VerifiedGood	0.06	
+PRV001+1	VerifiedGood	0.14	
+PRV002+1	VerifiedBad	0.06	step neg: formula is NOT the negation of the conjecture
+PRV003+1	VerifiedBad	0.06	step neg: formula is NOT the negation of the conjecture
+PRV004+1	VerifiedGood	0.06	
+PRV005+1	VerifiedGood	0.06	
+PRV006+1	VerifiedBad	0.07	step sk: Skolemization result is wrong; expected (![X]:(s(X,sK0(X)) & (![_z0]:t(_z0,sK0(X))))) but the step states (![X]:(s(X,sK0(X)) & (![X]:t(X,s...
+PRV007+1	VerifiedBad	0.06	step s: ATP shows premises do NOT entail the step
+PRV008+1	VerifiedBad	0.06	step sk: Skolemization result is wrong; expected (![X]:(s(X,sK0(X)) & (![_z0]:t(_z0,sK0(X))))) but the step states (![X]:(s(X,sK0(X)) & (![X]:t(X,s...
+PRV009+1	VerifiedBad	0.06	step neg: formula is NOT the negation of the conjecture
+PRV010+1	VerifiedGood	0.15	
+PRV011+1	VerifiedGood	0.15	
+PRV012+1	VerifiedGood	0.15	
+PRV013+1	VerifiedGood	0.16	
+PRV014+1	VerifiedGood	0.15	
+PRV015+1	VerifiedGood	0.13	
+PRV016+1	VerifiedGood	0.16	
+PRV017+1	VerifiedGood	0.07	
+PRV018+1	VerifiedGood	0.07	
+PRV019+1	VerifiedGood	0.06	
+PRV020+1	VerifiedGood	0.06	
+PRV021+1	VerifiedGood	0.07	
+PRV022+1	VerifiedGood	0.07	
+PRV023+1	VerifiedBad	0.06	step s: the derivation is cyclic (s -> s)
+PRV024+1	VerifiedBad	0.05	step s1: the derivation is cyclic (s1 -> s2 -> s3 -> s4 -> s1)
+PRV025+1	VerifiedBad	0.05	step s: premise(s) ['ghost'] are not steps of the proof
+PRV026+1	VerifiedBad	0.06	step bot: ATP shows premises do NOT entail the step
+PRV027+1	VerifiedGood	0.06	
+PRV028+1	VerifiedBad	0.06	step bot: ATP shows premises do NOT entail the step
+PRV029+1	VerifiedGood	0.06	
+PRV030+1	VerifiedGood	0.06	
+PRV031+1	VerifiedBad	0.06	step s: conjecture c used as a premise (only a negated_conjecture step may consume it)
+PRV032+1	VerifiedBad	0.05	step neg: negated_conjecture parent a1 is not the conjecture
+PRV033+1	VerifiedGood	0.07	
+PRV034+1	VerifiedGood	0.07	
+PRV035+1	VerifiedBad	0.06	step badsk: no existential Y at the expected position
+PRV036+1	VerifiedBad	0.05	step h: has no source: a step must be imported with a file directive or derived by an inference
+PRV037+1	VerifiedBad	0.06	step neg: formula is NOT the negation of the conjecture
+PRV038+1	VerifiedBad	0.06	step sk: skolemize must have status esa, got thm
+PRV039+1	VerifiedBad	0.06	step s: has no source: a step must be imported with a file directive or derived by an inference
+PRV040+1	VerifiedGood	0.06	
+PRV041+1	VerifiedGood	0.06	
+PRV042+1	VerifiedGood	0.13	
+PRV043+1	Unknown	20.25	step s: ATP could not confirm the step
+PRV044+1	VerifiedGood	0.08	
+PRV045+1	VerifiedGood	0.06	
+PRV046+1	VerifiedBad	0.05	step ax: file directive names a2, which is not in the problem
+PRV047+1	VerifiedBad	0.05	step a1: formula differs from a1 in the problem
+PRV048+1	VerifiedGood	0.06	
+PRV049+1	VerifiedBad	0.05	step a1: formula differs from a1 in the problem
+PRV050+1	VerifiedBad	0.06	step a1: formula differs from a1 in the problem
+PRV051+1	VerifiedBad	0.05	step ax: has role axiom, but c has role conjecture in the problem
+PRV052+1	VerifiedBad	0.05	step c: formula differs from c in the problem
+PRV053+1	VerifiedBad	0.07	step a1: formula differs from a1 in the problem
+PRV054+1	VerifiedBad	0.06	step ax: has no source: a step must be imported with a file directive or derived by an inference
+PRV055+1	VerifiedGood	0.06	
+PRV056+1	VerifiedBad	0.06	step s2: ATP shows premises do NOT entail the step
+PRV057+1	VerifiedBad	0.06	step bot: premise(s) ['S0'] are not steps of the proof
+PRV058+1	VerifiedBad	0.06	step s1: also claims status thm, but ATP shows premises do NOT entail the step
+PRV059+1	VerifiedGood	0.06	
+PRV060+1	VerifiedGood	0.06	
+PRV061+1	VerifiedGood	0.06	
+PRV062+1	VerifiedGood	0.06	
+PRV063+1	VerifiedGood	0.07	
+PRV064+1	VerifiedGood	0.07	
+PRV065+1	Unknown	0.06	step a1: file directive names 'SKO08.p', which is not the problem being checked
+PRV066+1	Unknown	0.06	step sk: Skolem term sK0(U1,U2,V1,V2,a,f(g(U1,U2),g(V1,V2),a)) is not sK0(U1,U2) up to argument order; the competition rules require exactly the un...
+PRV067+1	VerifiedBad	0.06	step s: ATP shows premises do NOT entail the step
+PRV068+1	VerifiedBad	0.06	step s: ATP shows premises do NOT entail the step
+PRV069+1	VerifiedBad	0.05	step s: ATP shows premises do NOT entail the step
+PRV070+1	VerifiedGood	0.06	
+PRV071+1	VerifiedBad	14.43	step bad: ATP shows premises do NOT entail the step
+PRV072+1	VerifiedBad	5.16	step sk1: Skolem symbol sK1 is not fresh: step sk2500 also introduces it
+PRV073+1	VerifiedGood	14.42	
+PRV074+1	VerifiedBad	0.06	step sk: Skolem symbol f is not fresh: it occurs in the problem
+PRV075+1	VerifiedBad	0.06	step sk1: Skolem symbol sK0 is not fresh: step sk2 also introduces it
+PRV076+1	VerifiedGood	0.07	
+PRV077+1	VerifiedBad	0.06	step sk: Skolem term sK0(X) is not built from the declared Skolem symbol sK1
+PRV078+1	VerifiedBad	0.06	step sk: Skolem term sK0 does not depend on X, which the eliminated variable depends on
+PRV079+1	Unknown	0.06	step sk: Skolem term sK0 is not sK0(X) up to argument order; the competition rules require exactly the universals in scope, its proceedings at leas...
+PRV080+1	Unknown	0.06	step sk: Skolem term sK0(X,Y) is not sK0(X) up to argument order; the competition rules require exactly the universals in scope, its proceedings at...
+PRV081+1	VerifiedGood	0.06	
+PRV082+1	VerifiedGood	0.06	
+PRV083+1	VerifiedBad	0.06	step sk: no existential X at the expected position
+PRV084+1	VerifiedBad	0.06	step sk: no existential Y at the expected position
+PRV085+1	VerifiedGood	0.06	
+PRV086+1	VerifiedBad	0.06	step sk: Skolemization result is wrong; expected (![X]:r(X,sK0(X))) but the step states (![X]:(r(X,sK0(X)) & extra(X)))
+PRV087+1	VerifiedBad	0.05	step sk: no existential Y at the expected position
+PRV088+1	VerifiedGood	0.06	
+PRV089+1	VerifiedGood	0.06	
+PRV090+1	VerifiedBad	0.05	step skA: Skolem symbol sK0 is not fresh: step skB also introduces it
+PRV091+1	VerifiedBad	0.05	step sk: Skolem term SK0 is not built from the declared Skolem symbol SK0
+PRV092+1	VerifiedBad	0.05	step sk: skolemize must have exactly one parent
+PRV093+1	VerifiedBad	0.05	step sk: skolemize step has no skolemize(Var,Term) annotation
+PRV094+1	VerifiedBad	0.06	step sk: skolemize step has no new_symbols(skolem,[...]) annotation
+PRV095+1	VerifiedBad	0.06	step sk: Skolemization result is wrong; expected p(a) but the step states p(sK0)
+PRV096+1	VerifiedGood	0.06	
+PRV097+1	VerifiedBad	0.06	step s: premise does NOT entail the de-skolemized formula
+PRV098+1	VerifiedGood	0.13	
+PRV099+1	VerifiedBad	10.21	step hard: ATP shows premises entail the NEGATION of the step
