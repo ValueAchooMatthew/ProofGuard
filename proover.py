@@ -228,7 +228,7 @@ def alpha_norm(f):
         if isinstance(g, (And, Or, Implies, Iff)):
             return type(g)(go(g.l, env), go(g.r, env))
         if isinstance(g, (Forall, Exists)):
-            nv = f"V{next(counter)}"
+            nv = f"#{next(counter)}"    # not a TPTP name: cannot clash with a free variable
             return type(g)(nv, go(g.body, {**env, g.var: nv}))
     return go(f, {})
 
@@ -872,7 +872,12 @@ def check_proof(problem_steps, proof_steps, deadline=None, log_to=None):
                            for p in s.premises]
                 used_conj = [p.name for p in parents if p.role == 'conjecture']
                 statuses = s.statuses or frozenset({s.status})
-                if s.rule == 'negated_conjecture' or (
+                if any(p.role == 'conjecture' and p.source_kind in
+                       ('inference', 'introduced') for p in parents):
+                    # only the conjecture imported from the problem may be negated
+                    record(s, s.rule, UNSURE,
+                           "a parent has role conjecture but is a derived step")
+                elif s.rule == 'negated_conjecture' or (
                         used_conj and (statuses & {'cth', 'esa'}
                                        or statuses <= {None})):
                     # must be the negation of the conjecture, or a skolemized
@@ -961,7 +966,8 @@ def check_proof(problem_steps, proof_steps, deadline=None, log_to=None):
                 # skolemized consequence of the named formula.
                 named = problem_by_name.get(ref) if s.file_ref else None
                 fresh = func_symbols(s.formula) - seen_symbols
-                if named is not None and (named.role == 'conjecture') \
+                if named is not None and s.role != 'conjecture' \
+                        and (named.role == 'conjecture') \
                         == (s.role == 'negated_conjecture'):
                     target = negate(universal_closure(named.formula)) \
                         if named.role == 'conjecture' else named.formula
