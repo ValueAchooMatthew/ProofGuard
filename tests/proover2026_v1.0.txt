@@ -1,0 +1,102 @@
+# proof	verdict	seconds	reason
+# ProofGuard 1.0 as submitted (delivery bundle of 2026-07-15), re-run locally with its bundled E 3.3.5
+PRV000+1	VerifiedGood	0.05	
+PRV001+1	VerifiedGood	0.11	
+PRV002+1	VerifiedBad	0.05	step neg: formula is NOT the negation of the conjecture
+PRV003+1	VerifiedBad	0.05	step neg: formula is NOT the negation of the conjecture
+PRV004+1	VerifiedGood	0.04	
+PRV005+1	VerifiedGood	0.04	
+PRV006+1	VerifiedBad	0.04	step sk: Skolemization result is wrong; expected (![X]:(s(X,sK0(X)) & (![_z0]:t(_z0,sK0(X))))) but the step states (![X]:(s(X,sK0(X)) & (![X]:t(X,s...
+PRV007+1	VerifiedBad	0.04	step s: ATP shows premises do NOT entail the step
+PRV008+1	VerifiedBad	0.05	step sk: Skolemization result is wrong; expected (![X]:(s(X,sK0(X)) & (![_z0]:t(_z0,sK0(X))))) but the step states (![X]:(s(X,sK0(X)) & (![X]:t(X,s...
+PRV009+1	VerifiedBad	0.04	step neg: formula is NOT the negation of the conjecture
+PRV010+1	VerifiedGood	0.12	
+PRV011+1	VerifiedBad	0.09	step s31: Skolem term sK4(X2,X0) should be sK4(X0,X2) (fresh symbol applied to exactly the universals in scope)
+PRV012+1	VerifiedGood	0.12	
+PRV013+1	VerifiedBad	0.10	step s33: Skolem term sK3(X9,X7) should be sK3(X7,X9) (fresh symbol applied to exactly the universals in scope)
+PRV014+1	VerifiedGood	0.13	
+PRV015+1	VerifiedBad	0.05	step s6: Skolem term sK0(X2,X0) should be sK0(X0,X2) (fresh symbol applied to exactly the universals in scope)
+PRV016+1	VerifiedBad	0.09	step s31: Skolem term sK1(X7,X17) should be sK1(X17,X7) (fresh symbol applied to exactly the universals in scope)
+PRV017+1	VerifiedGood	0.05	
+PRV018+1	VerifiedGood	0.05	
+PRV019+1	VerifiedBad	0.05	step sk: no existential X at the expected position
+PRV020+1	VerifiedBad	0.04	step sk: no existential X at the expected position
+PRV021+1	VerifiedGood	0.05	
+PRV022+1	VerifiedGood	0.05	
+PRV023+1	VerifiedBad	0.04	step s: premise(s) ['s'] not defined before this step
+PRV024+1	VerifiedBad	0.04	step s1: premise(s) ['s2'] not defined before this step
+PRV025+1	VerifiedBad	0.04	step s: premise(s) ['ghost'] not defined before this step
+PRV026+1	VerifiedBad	0.05	step bot: ATP shows premises do NOT entail the step
+PRV027+1	VerifiedBad	0.04	step bot: premise(s) ['sfin'] not defined before this step
+PRV028+1	VerifiedBad	0.05	step bot: ATP shows premises do NOT entail the step
+PRV029+1	VerifiedGood	0.05	
+PRV030+1	VerifiedGood	0.05	
+PRV031+1	VerifiedBad	0.04	step s: conjecture c used as a premise (only a negation of the conjecture may consume it)
+PRV032+1	VerifiedBad	0.04	step neg: negated_conjecture parent a1 is not the conjecture
+PRV033+1	VerifiedGood	0.05	
+PRV034+1	VerifiedGood	0.05	
+PRV035+1	VerifiedBad	0.04	step badsk: no existential Y at the expected position
+PRV036+1	VerifiedBad	0.04	step h: input h (hypothesis) does not occur in the problem
+PRV037+1	VerifiedBad	0.04	step neg: formula is NOT the negation of the conjecture
+PRV038+1	VerifiedBad	0.04	step sk: skolemize must have status esa, got thm
+PRV039+1	VerifiedBad	0.04	step s: input s (plain) does not occur in the problem
+PRV040+1	VerifiedGood	0.05	
+PRV041+1	VerifiedGood	0.05	
+PRV042+1	Unknown	0.05	parse error: expected ')', got '~&'
+PRV043+1	Unknown	20.23	step s: ATP could not confirm the step
+PRV044+1	VerifiedGood	0.07	
+PRV045+1	VerifiedGood	0.04	
+PRV046+1	VerifiedBad	0.04	step ax: input ax (axiom) does not occur in the problem
+PRV047+1	VerifiedBad	0.04	step a1: as clausified form of 'a1': premise does NOT entail the de-skolemized formula
+PRV048+1	VerifiedGood	0.04	
+PRV049+1	VerifiedBad	0.04	step a1: as clausified form of 'a1': premise does NOT entail the de-skolemized formula
+PRV050+1	VerifiedGood	0.05	
+PRV051+1	VerifiedBad	0.04	step ax: input ax (axiom) does not occur in the problem
+PRV052+1	VerifiedBad	0.04	step c: input c (conjecture) does not occur in the problem
+PRV053+1	VerifiedGood	0.05	
+PRV054+1	VerifiedBad	0.04	step ax: input ax (axiom) does not occur in the problem
+PRV055+1	VerifiedGood	0.06	
+PRV056+1	VerifiedBad	0.05	step s2: ATP shows premises do NOT entail the step
+PRV057+1	VerifiedBad	0.06	step bot: premise(s) ['S0'] not defined before this step
+PRV058+1	VerifiedGood	0.05	
+PRV059+1	VerifiedGood	0.04	
+PRV060+1	VerifiedGood	0.05	
+PRV061+1	VerifiedGood	0.05	
+PRV062+1	VerifiedGood	0.05	
+PRV063+1	VerifiedBad	0.04	step bot: premise(s) ['s0', 's6'] not defined before this step
+PRV064+1	VerifiedGood	0.06	
+PRV065+1	VerifiedBad	0.04	step sk: Skolem term sK0(X,a) should be sK0(X) (fresh symbol applied to exactly the universals in scope)
+PRV066+1	Unknown	0.04	step sk: existential nesting not handled; cannot check
+PRV067+1	VerifiedBad	0.05	step s: ATP shows premises do NOT entail the step
+PRV068+1	VerifiedBad	0.05	step s: ATP shows premises do NOT entail the step
+PRV069+1	VerifiedBad	0.04	step s: ATP shows premises do NOT entail the step
+PRV070+1	VerifiedGood	0.05	
+PRV071+1	VerifiedBad	13.67	step bad: ATP shows premises do NOT entail the step
+PRV072+1	VerifiedBad	4.38	step sk2500: Skolem symbol sK1 is not fresh (already in use)
+PRV073+1	VerifiedGood	13.63	
+PRV074+1	VerifiedBad	0.04	step sk: Skolem symbol f is not fresh (already in use)
+PRV075+1	VerifiedBad	0.04	step sk2: Skolem symbol sK0 is not fresh (already in use)
+PRV076+1	VerifiedBad	0.05	step sk: Skolem symbol g is not fresh (already in use)
+PRV077+1	VerifiedBad	0.04	step sk: Skolem term sK0(X) should be sK1(X) (fresh symbol applied to exactly the universals in scope)
+PRV078+1	VerifiedBad	0.04	step sk: Skolem term sK0 should be sK0(X) (fresh symbol applied to exactly the universals in scope)
+PRV079+1	VerifiedBad	0.04	step sk: Skolem term sK0 should be sK0(X) (fresh symbol applied to exactly the universals in scope)
+PRV080+1	Unknown	0.04	step sk: existential nesting not handled; cannot check
+PRV081+1	VerifiedBad	0.04	step sk: Skolem term sK0(Z,X) should be sK0(X,Z) (fresh symbol applied to exactly the universals in scope)
+PRV082+1	VerifiedBad	0.04	step sk: no existential Y at the expected position
+PRV083+1	VerifiedBad	0.04	step sk: no existential X at the expected position
+PRV084+1	VerifiedBad	0.04	step sk: no existential Y at the expected position
+PRV085+1	VerifiedGood	0.05	
+PRV086+1	VerifiedBad	0.04	step sk: Skolemization result is wrong; expected (![X]:r(X,sK0(X))) but the step states (![X]:(r(X,sK0(X)) & extra(X)))
+PRV087+1	VerifiedBad	0.04	step sk: no existential Y at the expected position
+PRV088+1	VerifiedGood	0.05	
+PRV089+1	VerifiedGood	0.05	
+PRV090+1	VerifiedBad	0.04	step skB: Skolem symbol sK0 is not fresh (already in use)
+PRV091+1	VerifiedBad	0.04	step sk: Skolem term SK0 should be SK0 (fresh symbol applied to exactly the universals in scope)
+PRV092+1	Unknown	0.04	step sk: expected exactly one parent
+PRV093+1	VerifiedGood	0.05	
+PRV094+1	VerifiedGood	0.05	
+PRV095+1	VerifiedBad	0.04	step sk: Skolemization result is wrong; expected p(a) but the step states p(sK0)
+PRV096+1	VerifiedGood	0.05	
+PRV097+1	VerifiedBad	0.04	step s: premise does NOT entail the de-skolemized formula
+PRV098+1	VerifiedGood	0.10	
+PRV099+1	VerifiedBad	10.16	step hard: ATP shows premises entail the NEGATION of the step
