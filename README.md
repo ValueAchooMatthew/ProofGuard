@@ -7,8 +7,11 @@ and it tells you whether the proof holds.
 - 🏆 Built for [ProoVer 2026](https://proover-competition.github.io/competitions/2026/),
   the first international competition for proof checkers (IJCAR, FLoC 2026, Lisbon).
   Placed **5th of 10**.
+- 🚀 ProofGuard 1.1 scores **137 of 138** on the same competition proofs.
 - 📄 Paper in progress with Alicia Marinache (McMaster University).
-- 🐍 About 1,000 lines of Python. No dependencies beyond the E prover.
+- 🐍 About 1,800 lines of Python. No dependencies beyond the E prover.
+- 📦 [Releases](https://github.com/ValueAchooMatthew/ProofGuard/releases): 1.0 as
+  submitted, and 1.1.
 
 ## 🧭 Why it matters
 
@@ -39,7 +42,7 @@ University of Greifswald, and Stephan Schulz, the author of the E prover.
 | GDV 2.0 (Geoff Sutcliffe, demo division) | -4 |
 | GDV-LP 2.0 (demo division) | -6 |
 
-ProofGuard highlights:
+ProofGuard 1.0 highlights:
 
 - ✅ 70 of 91 proofs classified correctly, including 40 of the 47 broken ones
 - ⚡ 1.92 seconds per proof on average
@@ -64,6 +67,20 @@ ProofGuard highlights:
 - 🌐 The hardest proofs in the set exploited exactly that gap. Two of them
   fooled 5 and 6 of the 10 systems, including Geoff Sutcliffe's own GDV.
 - 📄 This analysis is the core contribution of the paper.
+
+## 🚀 ProofGuard 1.1
+
+Built from the analysis above. A new strict profile checks every proof
+against the competition's certificate rules, and the 1.0 checker stays
+available as a tolerant profile for the output of real provers.
+
+- ✅ **137 of 138** points on the 91 competition proofs: all 47 broken proofs
+  rejected and 43 of the 44 valid ones accepted
+- 🧪 819 rule-breaking variants of the valid competition proofs, and none
+  accepted
+- 🔀 Accepts a proof's steps in any order, as the competition rules allow
+- 🔁 Every result is reproducible with `tests/proover2026.py`, which compares
+  each version against the official answers
 
 ## 📝 Paper
 
