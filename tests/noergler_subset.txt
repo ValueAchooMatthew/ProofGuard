@@ -1,7 +1,7 @@
 # The 122 PyRes proofs of the TSTP FOF proof benchmark (doi:10.5281/zenodo.19792604)
 # that ProofGuard 1.0 accepts. They were chosen by that verdict, so accepting them
-# is no evidence. The test is whether their falsified versions are rejected, and
-# at which step. tests/noergler_bench.py --subset reads this list.
+# again shows nothing. The harness checks whether their falsified versions are
+# rejected, and at which step. tests/noergler_bench.py --subset reads this list.
 CSR025+1_PyRes---1.5
 CSR026+1_PyRes---1.5
 CSR028+1_PyRes---1.5

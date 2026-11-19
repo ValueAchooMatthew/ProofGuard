@@ -16,11 +16,11 @@ certificate format (Otter's imported formulas, for instance, are all named
 "unknown"). The tolerant profile is the one meant for them.
 
 tests/noergler_subset.txt lists the 122 PyRes proofs that ProofGuard 1.0
-accepts. They were chosen by that verdict, so accepting them is no evidence
-of anything. The evidence is in their falsified versions: each is a proof
-known to be correct with one formula changed, and the harness reports
-whether it was rejected at the changed step, at a step that uses it, or
-elsewhere. The PyRes proofs include their problems, so this subset needs no
+accepts. They were chosen by that verdict, so accepting them again shows
+nothing, and the subset is meant for testing their falsified versions. Each
+falsified proof is a proof known to be correct with one formula changed, and
+the harness reports whether it was rejected at the changed step, at a step
+that uses it, or elsewhere. The PyRes proofs include their problems, so this subset needs no
 TPTP library.
 
 Usage:
