@@ -20,12 +20,12 @@ and it tells you whether the proof holds.
 - Provers are "complex pieces of software, and thus may have bugs that make
   them unsound" ([Sutcliffe, 2006](https://www.cs.miami.edu/home/geoff/Papers/Journal/2006_Sut06_IJAIT-TBA.pdf)).
   LLMs write convincing proofs that cite the wrong facts.
-- ProofGuard checks every step on its own, never re-proves the theorem, and
-  answers `Unknown` instead of guessing.
+- ProofGuard checks each step on its own against the steps it cites, and
+  answers `Unknown` when it cannot decide.
 
 ## 🏁 Results
 
-ProoVer 2026, 27 July 2026. 91 proofs, 47 of them deliberately broken, 30
+ProoVer 2026, 27 July 2026. 91 proofs, 47 of them invalid, 30
 seconds each. Ten systems competed, including entries from TU Wien, the
 University of Greifswald, and Stephan Schulz, the author of the E prover.
 
@@ -61,11 +61,9 @@ ProofGuard 1.0 highlights:
 - 🔁 I re-ran the exact submitted package on the published problem set and
   reproduced 89 of the 91 official verdicts.
 - 🧩 Every disagreement with the official answer key traces to a specific
-  decision in the code, and they all share one cause: ProofGuard enforced
-  logical soundness, while the competition graded conformance to the
-  certificate specification.
-- 🌐 The hardest proofs in the set exploited exactly that gap. Two of them
-  fooled 5 and 6 of the 10 systems, including Geoff Sutcliffe's own GDV.
+  decision in how ProofGuard checked the competition's certificate rules.
+- 🌐 Two of the proofs that broke these rules fooled 5 and 6 of the 10
+  systems, including Geoff Sutcliffe's own GDV.
 - 📄 This analysis is the core contribution of the paper.
 
 ## 🚀 ProofGuard 1.1
@@ -121,7 +119,7 @@ directory and to the proof's own directory. A two-argument form
 (`./proover-check PROBLEM PROOF`) naming the problem explicitly is also
 accepted. Step-by-step details go to stderr (suppress with `--quiet`). The
 wall-clock budget defaults to 30 seconds (`--time-limit` or
-`PROOVER_TIME_LIMIT` override it); the verifier emits `Timeout` itself before
+`PROOVER_TIME_LIMIT` override it), and the verifier emits `Timeout` itself before
 the budget runs out.
 
 Requires Python 3.8+ and the E prover (`eprover` on PATH, or point
@@ -142,8 +140,8 @@ Every annotation of a step is read as a claim to be checked. Each kind of
 step has a fixed list of obligations taken from the competition rules, and a
 step is accepted only when all of them pass. There are no fallbacks. E
 still confirms ordinary inferences and the negated conjecture, as the rules
-allow, but checks beyond what the rules ask for, such as de-Skolemization,
-can only reject a step, never accept one.
+allow. Checks beyond what the rules ask for, such as de-Skolemization, are
+only used to reject steps.
 
 - **Imported steps** must have role axiom or conjecture, name a formula of
   the problem being checked, have the same role as that formula, and be
@@ -177,13 +175,13 @@ can only reject a step, never accept one.
   must apply it to exactly the universals in scope of the named existential.
   Both annotation dialects (`skolemize(V, t)` and `skolemized(V) ... bind(V, t)`)
   are supported. Annotation-free skolemization chains (as E emits) are
-  checked by de-skolemizing the step - each fresh symbol's term becomes an
-  existential re-inserted inside its innermost argument binder - which makes
-  the step a correct skolemization of the result by construction; the
+  checked by de-skolemizing the step: each fresh symbol's term becomes an
+  existential re-inserted inside its innermost argument binder, which makes
+  the step a correct skolemization of the result by construction. The
   remaining thm-content is then checked with the ATP.
 - **All other steps with status `thm`** are checked by calling E on that step
-  and its premises only, as the competition rules require; the conjecture is
-  never re-proved independently. E showing the step countersatisfiable yields
+  and its premises only, as the competition rules require, and the
+  conjecture is never re-proved independently. E showing the step countersatisfiable yields
   a definite `VerifiedBad`.
 - **Structural soundness**: premises must be defined before use (no circular
   or forward references), step names must be unique, no formula may have
@@ -191,7 +189,7 @@ can only reject a step, never accept one.
 - Nested E-style inference chains (`inference(..., [inference(...)])`) are
   flattened, so unmodified `eprover --proof-object` output verifies too.
 
-Anything the verifier cannot decide is reported as `Unknown`, never guessed.
+Anything the verifier cannot decide is reported as `Unknown`.
 
 ### Docker
 
@@ -225,8 +223,8 @@ python3 tests/tptp_bench.py --update  # re-record tests/tptp_baseline.txt
 The TPTP bench has E prove each problem in `tests/tptp/` (E's example set,
 spanning 18 TPTP domains, FOF and CNF, several with `include()` axiom files),
 then verifies E's own proof. Correct proofs must never come back
-`VerifiedBad`; the baseline records which come back `VerifiedGood` versus a
-conservative `Unknown` so soundness and coverage regressions both fail the
+`VerifiedBad`. The baseline records which come back `VerifiedGood` and which
+come back a conservative `Unknown`, so soundness and coverage regressions both fail the
 bench. Extra problem directories can be added with `--dir DIR`.
 
 ```
@@ -236,13 +234,11 @@ python3 tests/fuzz_mutations.py       # mutation fuzzer (soundness)
 ```
 
 `tests/tstp/` caches a sample of real solutions from the TSTP library across
-five ATP systems (E, Vampire, SNARK, Prover9, Drodi) and ten problem domains
-- proof dialects we did not develop against. All are presumed-correct proofs,
+five ATP systems (E, Vampire, SNARK, Prover9, Drodi) and ten problem domains,
+in proof dialects we did not develop against. All are presumed-correct proofs,
 so any `VerifiedBad` fails the suite as a soundness bug. The mutation fuzzer
-guards the opposite direction: it corrupts known-correct proofs (tampered
-leaves, orphaned negations, circular premises) and asserts the verifier never
-answers `VerifiedGood`. Together these keep dialect-coverage work from
-drifting into accepting too much.
+corrupts known-correct proofs (tampered leaves, orphaned negations, circular
+premises) and asserts the verifier never answers `VerifiedGood`.
 
 ```
 python3 tests/proover2026.py --fetch                                # download the competition proofs
@@ -273,22 +269,22 @@ rejected at the changed step, at a step that uses it, or elsewhere. The
 recorded runs are `tests/noergler_v1.0.txt` and `tests/noergler_v1.1-*.txt`.
 
 `tests/examples/` holds the official ProoVer 2026 examples (correct proofs
-COR*, evil proofs EVL*, and the 8 MB TMO000 stress proof — which hides a real
+COR*, evil proofs EVL*, and the 8 MB TMO000 stress proof, which hides a real
 flaw at step sk219 that this verifier finds in ~12 s).
 
 `Problems/`/`Proofs/` keep an early hand-written example whose proof is in
-fact unsound (its conjecture `![X]: p(X)` does not follow from `p(a)`); the
+fact unsound (its conjecture `![X]: p(X)` does not follow from `p(a)`). The
 verifier correctly reports `VerifiedBad` where a purely structural check
 would accept it.
 
 ### Repository layout
 
-- `proover.py` — the engine: TSTP/FOF parser, formula algebra, step checkers,
+- `proover.py`: the engine: TSTP/FOF parser, formula algebra, step checkers,
   deadline-aware E invocation.
-- `proover-check` — competition entry point (one SZS line, timeout guard).
-- `tests/run_tests.py` — test suite.
+- `proover-check`: competition entry point (one SZS line, timeout guard).
+- `tests/run_tests.py`: test suite.
 - `tests/proover2026.py`, `tests/conformance.py`: evaluation on the
   competition proofs and conformance to the specification.
-- `Dockerfile` — self-contained image with E bundled.
+- `Dockerfile`: self-contained image with E bundled.
 
 Please note that AI was used in part to help with the coding and documenting of this project.
