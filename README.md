@@ -258,6 +258,18 @@ every valid competition proof, that break the certificate specification.
 None may be accepted. It also checks that every accepted proof is still
 accepted with its steps in reverse order.
 
+```
+python3 tests/noergler_bench.py --fetch --subset tests/noergler_subset.txt --args "--profile tolerant"
+```
+
+`tests/noergler_bench.py` runs the checker over the public TSTP FOF proof
+benchmark built for the Nörgler checker (doi:10.5281/zenodo.19792604): correct
+Otter and PyRes proofs from the TSTP library and falsified versions of them.
+`tests/noergler_subset.txt` lists the 122 PyRes proofs that ProofGuard 1.0
+can read. For each falsified version the harness reports whether it was
+rejected at the changed step, at a step that uses it, or elsewhere. The
+recorded runs are `tests/noergler_v1.0.txt` and `tests/noergler_v1.1-*.txt`.
+
 `tests/examples/` holds the official ProoVer 2026 examples (correct proofs
 COR*, evil proofs EVL*, and the 8 MB TMO000 stress proof — which hides a real
 flaw at step sk219 that this verifier finds in ~12 s).

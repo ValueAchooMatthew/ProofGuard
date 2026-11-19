@@ -1,0 +1,245 @@
+# proof	verdict	seconds	reason
+PyRes/original/CSR025+1_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/CSR026+1_PyRes---1.5.proof	VerifiedGood	0.13	
+PyRes/original/CSR028+1_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/CSR029+1_PyRes---1.5.proof	VerifiedGood	0.15	
+PyRes/original/CSR033+1_PyRes---1.5.proof	VerifiedGood	0.21	
+PyRes/original/CSR036+1_PyRes---1.5.proof	VerifiedGood	0.39	
+PyRes/original/CSR037+1_PyRes---1.5.proof	VerifiedGood	0.10	
+PyRes/original/CSR039+1_PyRes---1.5.proof	VerifiedGood	0.36	
+PyRes/original/CSR040+1_PyRes---1.5.proof	VerifiedGood	0.30	
+PyRes/original/CSR041+1_PyRes---1.5.proof	VerifiedGood	0.09	
+PyRes/original/CSR043+1_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/CSR046+1_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/CSR047+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/CSR049+1_PyRes---1.5.proof	VerifiedGood	0.41	
+PyRes/original/CSR050+1_PyRes---1.5.proof	VerifiedGood	0.16	
+PyRes/original/CSR052+1_PyRes---1.5.proof	VerifiedGood	0.14	
+PyRes/original/CSR053+1_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/CSR059+1_PyRes---1.5.proof	VerifiedGood	0.10	
+PyRes/original/CSR061+1_PyRes---1.5.proof	VerifiedGood	0.26	
+PyRes/original/CSR065+1_PyRes---1.5.proof	VerifiedGood	0.14	
+PyRes/original/CSR068+1_PyRes---1.5.proof	VerifiedGood	0.10	
+PyRes/original/CSR069+1_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/CSR070+1_PyRes---1.5.proof	VerifiedGood	0.15	
+PyRes/original/CSR071+1_PyRes---1.5.proof	VerifiedGood	0.13	
+PyRes/original/CSR072+1_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/CSR074+1_PyRes---1.5.proof	VerifiedGood	0.16	
+PyRes/original/ITP001+1_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/ITP010+1_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/LAT388+1_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/LCL181+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/LCL230+1_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/LCL662+1.001_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/LCL680+1.001_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/LCL982+1_PyRes---1.5.proof	VerifiedGood	0.11	
+PyRes/original/MGT021+1_PyRes---1.5.proof	VerifiedGood	0.21	
+PyRes/original/MGT022+1_PyRes---1.5.proof	VerifiedGood	0.17	
+PyRes/original/MGT022+2_PyRes---1.5.proof	VerifiedGood	0.17	
+PyRes/original/MSC019+1_PyRes---1.5.proof	VerifiedGood	0.10	
+PyRes/original/NUM425+3_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/NUM429+3_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/NUM430+3_PyRes---1.5.proof	VerifiedGood	0.09	
+PyRes/original/NUM434+3_PyRes---1.5.proof	VerifiedGood	0.09	
+PyRes/original/NUM602+1_PyRes---1.5.proof	VerifiedGood	0.11	
+PyRes/original/NUM615+1_PyRes---1.5.proof	VerifiedGood	0.11	
+PyRes/original/NUM615+3_PyRes---1.5.proof	VerifiedGood	0.10	
+PyRes/original/NUM838+1_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/NUM838+2_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/NUM847+1_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/NUM847+2_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/NUM850+1_PyRes---1.5.proof	VerifiedGood	0.15	
+PyRes/original/NUM850+2_PyRes---1.5.proof	VerifiedGood	0.15	
+PyRes/original/NUM853+2_PyRes---1.5.proof	VerifiedGood	0.12	
+PyRes/original/NUM854+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/NUM854+2_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/RNG101+2_PyRes---1.5.proof	VerifiedGood	0.09	
+PyRes/original/RNG102+2_PyRes---1.5.proof	VerifiedGood	0.09	
+PyRes/original/SET002+3_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SET148+3_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SET585+3_PyRes---1.5.proof	VerifiedGood	0.09	
+PyRes/original/SET883+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SET904+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SET910+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SET911+1_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/SET913+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SET915+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SET940+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SET978+1_PyRes---1.5.proof	VerifiedGood	0.11	
+PyRes/original/SEU083+1_PyRes---1.5.proof	VerifiedGood	0.09	
+PyRes/original/SEU116+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SEU161+1_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/SEU161+3_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SEU163+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SEU163+2_PyRes---1.5.proof	VerifiedGood	0.09	
+PyRes/original/SEU163+3_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SEU264+1_PyRes---1.5.proof	VerifiedGood	0.12	
+PyRes/original/SEU275+1_PyRes---1.5.proof	VerifiedGood	0.15	
+PyRes/original/SEU306+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SWB001+2_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/SWB002+2_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SWB003+2_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/SWV011+1_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/SWW478+1_PyRes---1.5.proof	VerifiedGood	0.09	
+PyRes/original/SWW478+5_PyRes---1.5.proof	VerifiedGood	0.25	
+PyRes/original/SYN001+1_PyRes---1.5.proof	VerifiedGood	0.05	
+PyRes/original/SYN040+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SYN041+1_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/SYN044+1_PyRes---1.5.proof	VerifiedGood	0.10	
+PyRes/original/SYN045+1_PyRes---1.5.proof	VerifiedGood	0.09	
+PyRes/original/SYN046+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SYN054+1_PyRes---1.5.proof	VerifiedGood	0.14	
+PyRes/original/SYN060+1_PyRes---1.5.proof	VerifiedGood	0.11	
+PyRes/original/SYN061+1_PyRes---1.5.proof	VerifiedGood	0.11	
+PyRes/original/SYN062+1_PyRes---1.5.proof	VerifiedGood	0.12	
+PyRes/original/SYN079+1_PyRes---1.5.proof	VerifiedGood	0.09	
+PyRes/original/SYN325+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SYN326+1_PyRes---1.5.proof	VerifiedGood	0.09	
+PyRes/original/SYN331+1_PyRes---1.5.proof	VerifiedGood	0.09	
+PyRes/original/SYN332+1_PyRes---1.5.proof	VerifiedGood	0.14	
+PyRes/original/SYN334+1_PyRes---1.5.proof	VerifiedGood	0.13	
+PyRes/original/SYN336+1_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/SYN345+1_PyRes---1.5.proof	VerifiedGood	0.12	
+PyRes/original/SYN346+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SYN347+1_PyRes---1.5.proof	VerifiedGood	0.13	
+PyRes/original/SYN349+1_PyRes---1.5.proof	VerifiedGood	0.14	
+PyRes/original/SYN350+1_PyRes---1.5.proof	VerifiedGood	0.10	
+PyRes/original/SYN351+1_PyRes---1.5.proof	VerifiedGood	0.09	
+PyRes/original/SYN383+1_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/SYN387+1_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/SYN388+1_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/SYN389+1_PyRes---1.5.proof	VerifiedGood	0.07	
+PyRes/original/SYN390+1_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/SYN392+1_PyRes---1.5.proof	VerifiedGood	0.10	
+PyRes/original/SYN393+1.003_PyRes---1.5.proof	VerifiedGood	0.15	
+PyRes/original/SYN400+1_PyRes---1.5.proof	VerifiedGood	0.05	
+PyRes/original/SYN403+1_PyRes---1.5.proof	VerifiedGood	0.08	
+PyRes/original/SYN416+1_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/SYN915+1_PyRes---1.5.proof	VerifiedGood	0.05	
+PyRes/original/SYN932+1_PyRes---1.5.proof	VerifiedGood	0.05	
+PyRes/original/SYN933+1_PyRes---1.5.proof	VerifiedGood	0.05	
+PyRes/original/SYN973+1_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/SYN978+1_PyRes---1.5.proof	VerifiedGood	0.06	
+PyRes/original/TOP021+1_PyRes---1.5.proof	VerifiedGood	0.11	
+PyRes/falsified/CSR025+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c1: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR026+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c1: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR028+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step just8: as clausified form of 'just8': premise does NOT entail the de-skolemized formula
+PyRes/falsified/CSR029+1_PyRes---1.5_falsified.proof	VerifiedBad	0.09	step just8: as clausified form of 'just8': premise does NOT entail the de-skolemized formula
+PyRes/falsified/CSR033+1_PyRes---1.5_falsified.proof	VerifiedBad	0.18	step c455: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR036+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c3: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR037+1_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step c1: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR039+1_PyRes---1.5_falsified.proof	VerifiedBad	0.27	step c2065: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR040+1_PyRes---1.5_falsified.proof	VerifiedBad	0.14	step c393: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR041+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c203: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR043+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step just6: as clausified form of 'just6': premise does NOT entail the de-skolemized formula
+PyRes/falsified/CSR046+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c187: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR047+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c7: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR049+1_PyRes---1.5_falsified.proof	VerifiedBad	0.33	step c538: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR050+1_PyRes---1.5_falsified.proof	VerifiedBad	0.14	step c410: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR052+1_PyRes---1.5_falsified.proof	VerifiedBad	0.11	step just20: as clausified form of 'just20': premise does NOT entail the de-skolemized formula
+PyRes/falsified/CSR053+1_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step just1: as clausified form of 'just1': premise does NOT entail the de-skolemized formula
+PyRes/falsified/CSR059+1_PyRes---1.5_falsified.proof	VerifiedBad	0.09	step c147: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR061+1_PyRes---1.5_falsified.proof	VerifiedBad	0.20	step just17: as clausified form of 'just17': premise does NOT entail the de-skolemized formula
+PyRes/falsified/CSR065+1_PyRes---1.5_falsified.proof	VerifiedBad	0.11	step c243: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR068+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c159: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR069+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c2: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR070+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c1: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR071+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step just2: as clausified form of 'just2': premise does NOT entail the de-skolemized formula
+PyRes/falsified/CSR072+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c3: ATP shows premises do NOT entail the step
+PyRes/falsified/CSR074+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c206: ATP shows premises do NOT entail the step
+PyRes/falsified/ITP001+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step reserved_2Eho_2Etruth: as clausified form of 'reserved_2Eho_2Etruth': premise does NOT entail the de-skolemized formula
+PyRes/falsified/ITP010+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c14: ATP shows premises do NOT entail the step
+PyRes/falsified/LAT388+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c23: ATP shows premises do NOT entail the step
+PyRes/falsified/LCL181+1_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c10: ATP shows premises do NOT entail the step
+PyRes/falsified/LCL230+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c11: ATP shows premises do NOT entail the step
+PyRes/falsified/LCL662+1.001_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c3: ATP shows premises do NOT entail the step
+PyRes/falsified/LCL680+1.001_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c7: ATP shows premises do NOT entail the step
+PyRes/falsified/LCL982+1_PyRes---1.5_falsified.proof	VerifiedBad	10.45	step c20: ATP shows premises do NOT entail the step
+PyRes/falsified/MGT021+1_PyRes---1.5_falsified.proof	VerifiedBad	0.14	step c79: ATP shows premises do NOT entail the step
+PyRes/falsified/MGT022+1_PyRes---1.5_falsified.proof	VerifiedBad	0.17	step c39: ATP shows premises do NOT entail the step
+PyRes/falsified/MGT022+2_PyRes---1.5_falsified.proof	VerifiedBad	0.10	step c10: ATP shows premises do NOT entail the step
+PyRes/falsified/MSC019+1_PyRes---1.5_falsified.proof	VerifiedBad	0.10	step c2577: ATP shows premises do NOT entail the step
+PyRes/falsified/NUM425+3_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c13: ATP shows premises do NOT entail the step
+PyRes/falsified/NUM429+3_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c212: ATP shows premises do NOT entail the step
+PyRes/falsified/NUM430+3_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c9: ATP shows premises do NOT entail the step
+PyRes/falsified/NUM434+3_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c227: ATP shows premises do NOT entail the step
+PyRes/falsified/NUM602+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step m__5009: as clausified form of 'm__5009': premise does NOT entail the de-skolemized formula
+PyRes/falsified/NUM615+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step m__5182: as clausified form of 'm__5182': premise does NOT entail the de-skolemized formula
+PyRes/falsified/NUM615+3_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c41: ATP shows premises do NOT entail the step
+PyRes/falsified/NUM838+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c156: ATP shows premises do NOT entail the step
+PyRes/falsified/NUM838+2_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c437: ATP shows premises do NOT entail the step
+PyRes/falsified/NUM847+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c189: ATP shows premises do NOT entail the step
+PyRes/falsified/NUM847+2_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step c18: ATP shows premises do NOT entail the step
+PyRes/falsified/NUM850+1_PyRes---1.5_falsified.proof	VerifiedBad	0.12	step c1276: ATP shows premises do NOT entail the step
+PyRes/falsified/NUM850+2_PyRes---1.5_falsified.proof	VerifiedBad	0.15	step c15807: ATP shows premises do NOT entail the step
+PyRes/falsified/NUM853+2_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c115: ATP shows premises do NOT entail the step
+PyRes/falsified/NUM854+1_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step c206: ATP shows premises do NOT entail the step
+PyRes/falsified/NUM854+2_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step 'ass(cond(299, 0), 2)': as clausified form of "'ass(cond(299, 0), 2)'": premise does NOT entail the de-skolemized formula
+PyRes/falsified/RNG101+2_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step m__1933: as clausified form of 'm__1933': premise does NOT entail the de-skolemized formula
+PyRes/falsified/RNG102+2_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c19: ATP shows premises do NOT entail the step
+PyRes/falsified/SET002+3_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c5: ATP shows premises do NOT entail the step
+PyRes/falsified/SET148+3_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step reflexivity_of_subset: as clausified form of 'reflexivity_of_subset': premise does NOT entail the de-skolemized formula
+PyRes/falsified/SET585+3_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step c50: ATP shows premises do NOT entail the step
+PyRes/falsified/SET883+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c27: ATP shows premises do NOT entail the step
+PyRes/falsified/SET904+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c93: ATP shows premises do NOT entail the step
+PyRes/falsified/SET910+1_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c6: ATP shows premises do NOT entail the step
+PyRes/falsified/SET911+1_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step l32_zfmisc_1: as clausified form of 'l32_zfmisc_1': premise does NOT entail the de-skolemized formula
+PyRes/falsified/SET913+1_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c1: ATP shows premises do NOT entail the step
+PyRes/falsified/SET915+1_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c10: ATP shows premises do NOT entail the step
+PyRes/falsified/SET940+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c8: ATP shows premises do NOT entail the step
+PyRes/falsified/SET978+1_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c12: ATP shows premises do NOT entail the step
+PyRes/falsified/SEU083+1_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c29: ATP shows premises do NOT entail the step
+PyRes/falsified/SEU116+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c84: ATP shows premises do NOT entail the step
+PyRes/falsified/SEU161+1_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c4: ATP shows premises do NOT entail the step
+PyRes/falsified/SEU161+3_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c5: ATP shows premises do NOT entail the step
+PyRes/falsified/SEU163+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c1: ATP shows premises do NOT entail the step
+PyRes/falsified/SEU163+2_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step l50_zfmisc_1: as clausified form of 'l50_zfmisc_1': premise does NOT entail the de-skolemized formula
+PyRes/falsified/SEU163+3_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c5: ATP shows premises do NOT entail the step
+PyRes/falsified/SEU264+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c17: ATP shows premises do NOT entail the step
+PyRes/falsified/SEU275+1_PyRes---1.5_falsified.proof	VerifiedBad	0.13	step c25: ATP shows premises do NOT entail the step
+PyRes/falsified/SEU306+1_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c26: ATP shows premises do NOT entail the step
+PyRes/falsified/SWB001+2_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c5: ATP shows premises do NOT entail the step
+PyRes/falsified/SWB002+2_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step c2: ATP shows premises do NOT entail the step
+PyRes/falsified/SWB003+2_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c3: ATP shows premises do NOT entail the step
+PyRes/falsified/SWV011+1_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step ax3: as clausified form of 'ax3': premise does NOT entail the de-skolemized formula
+PyRes/falsified/SWW478+1_PyRes---1.5_falsified.proof	VerifiedBad	0.10	step c137: ATP shows premises do NOT entail the step
+PyRes/falsified/SWW478+5_PyRes---1.5_falsified.proof	VerifiedBad	0.25	step c428: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN001+1_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step c2: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN040+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c13: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN041+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c3: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN044+1_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step c8: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN045+1_PyRes---1.5_falsified.proof	VerifiedBad	0.09	step c23: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN046+1_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c4: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN054+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c5: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN060+1_PyRes---1.5_falsified.proof	VerifiedBad	0.11	step c21: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN061+1_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step pel31_2: as clausified form of 'pel31_2': premise does NOT entail the de-skolemized formula
+PyRes/falsified/SYN062+1_PyRes---1.5_falsified.proof	VerifiedBad	0.10	step c13: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN079+1_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step c1: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN325+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c13: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN326+1_PyRes---1.5_falsified.proof	VerifiedBad	0.09	step c16: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN331+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c28: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN332+1_PyRes---1.5_falsified.proof	VerifiedBad	0.14	step c162: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN334+1_PyRes---1.5_falsified.proof	VerifiedBad	0.13	step c227: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN336+1_PyRes---1.5_falsified.proof	VerifiedBad	0.07	step c9: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN345+1_PyRes---1.5_falsified.proof	VerifiedBad	0.10	step c14: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN346+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c12: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN347+1_PyRes---1.5_falsified.proof	VerifiedBad	0.10	step c17: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN349+1_PyRes---1.5_falsified.proof	VerifiedBad	0.10	step c32: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN350+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c11: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN351+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c16: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN383+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c8: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN387+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c5: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN388+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c2: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN389+1_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step c2: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN390+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c2: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN392+1_PyRes---1.5_falsified.proof	VerifiedBad	0.09	step c24: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN393+1.003_PyRes---1.5_falsified.proof	VerifiedBad	0.10	step c39: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN400+1_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step c2: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN403+1_PyRes---1.5_falsified.proof	VerifiedBad	0.08	step c9: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN416+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c6: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN915+1_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step c2: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN932+1_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step c2: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN933+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c2: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN973+1_PyRes---1.5_falsified.proof	VerifiedBad	0.06	step c2: ATP shows premises do NOT entail the step
+PyRes/falsified/SYN978+1_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step c2: ATP shows premises do NOT entail the step
+PyRes/falsified/TOP021+1_PyRes---1.5_falsified.proof	VerifiedBad	0.05	step c1: ATP shows premises do NOT entail the step
