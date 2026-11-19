@@ -140,8 +140,10 @@ is the [v1.0 release](https://github.com/ValueAchooMatthew/ProofGuard/releases/t
 
 Every annotation of a step is read as a claim to be checked. Each kind of
 step has a fixed list of obligations taken from the competition rules, and a
-step is accepted only when all of them pass. There are no fallbacks: the
-ATP and de-Skolemization can reject a step but never accept one.
+step is accepted only when all of them pass. There are no fallbacks. E
+still confirms ordinary inferences and the negated conjecture, as the rules
+allow, but checks beyond what the rules ask for, such as de-Skolemization,
+can only reject a step, never accept one.
 
 - **Imported steps** must have role axiom or conjecture, name a formula of
   the problem being checked, have the same role as that formula, and be
