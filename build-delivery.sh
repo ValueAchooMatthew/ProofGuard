@@ -42,8 +42,8 @@ exec "$DIR/python/bin/python3" "$DIR/proover-check.py" "$@"
 SHIM
 chmod +x "build-tmp/$OUT/proover-check"
 cat > "build-tmp/$OUT/README.txt" <<'EOF'
-ProofGuard 1.0 - ProoVer 2026 entry
-===================================
+ProofGuard 1.1
+==============
 Launch command (one proof per invocation; the problem file is located
 automatically via the proof's file() directives and header):
 
@@ -53,6 +53,9 @@ Prints exactly one line to stdout:
     % SZS status VerifiedGood | VerifiedBad [: reason] | Unknown [: reason] | Timeout
 
 Wall-clock budget defaults to 30 s; override with --time-limit SECONDS.
+--profile strict (the default) checks the ProoVer 2026 certificate
+specification. --profile tolerant is the ProofGuard 1.0 checker, which also
+accepts the dialects of real ATP systems.
 Self-contained: ships its own Python runtime (python/) and E prover
 (eprover), both built for glibc >= 2.17 (CentOS 7 compatible). No network
 access or installation required.
